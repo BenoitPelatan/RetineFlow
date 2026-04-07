@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RetinaFlow — IVT Management v9</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --navy:#0B1A2E;--blue:#1A56DB;--blue-light:#EFF6FF;
+  --teal:#0891B2;--amber:#D97706;--amber-light:#FFFBEB;
+  --red:#DC2626;--red-light:#FEF2F2;--green:#16A34A;--green-light:#F0FDF4;
+  --g50:#F8FAFC;--g100:#F1F5F9;--g200:#E2E8F0;--g400:#94A3B8;--g500:#64748B;--g700:#334155;--g900:#0F172A;
+  --white:#fff;
+  --sh-sm:0 1px 3px rgba(11,26,46,.08);--sh:0 4px 12px rgba(11,26,46,.10);--sh-lg:0 12px 32px rgba(11,26,46,.14);
+  --r-sm:8px;--r-lg:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--g50);color:var(--g900);min-height:100vh}
+.hdr{background:var(--white);border-bottom:1px solid var(--g200);padding:0 18px;display:flex;align-items:center;height:54px;position:sticky;top:0;z-index:100;box-shadow:var(--sh-sm);gap:8px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px;margin-right:16px}
+.logo-icon{width:32px;height:32px;background:var(--navy);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-name{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--navy)}
+.logo-sub{font-size:9px;font-weight:500;color:var(--g400);letter-spacing:.1em;text-transform:uppercase;display:block;margin-top:-2px}
+.tab-nav{display:flex;height:54px}
+.tnav{display:flex;align-items:center;gap:6px;padding:0 14px;font-size:12px;font-weight:500;color:var(--g500);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;height:100%;transition:.15s;white-space:nowrap}
+.tnav.on{color:var(--blue);border-bottom-color:var(--blue)}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.visit-tog{display:flex;background:var(--g100);border-radius:8px;padding:3px;gap:2px}
+.vt{font-size:11px;font-weight:500;padding:4px 10px;border-radius:6px;border:none;background:none;color:var(--g500);cursor:pointer;transition:.15s}
+.vt.on{background:var(--white);color:var(--blue);box-shadow:var(--sh-sm)}
+.date-chip{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--g500);background:var(--g100);border-radius:7px;padding:4px 9px}
+.date-chip input{background:none;border:none;font-size:11px;color:var(--g700);font-family:inherit;width:105px;cursor:pointer}
+.prat-input{font-size:11px;border:1px solid var(--g200);border-radius:7px;padding:4px 9px;color:var(--g700);width:140px;background:var(--white)}
+.prat-input:focus{outline:none;border-color:var(--blue)}
+.pane{display:none}.pane.on{display:block}
+.body{padding:16px 14px}
+.eyes-grid{display:grid;grid-template-columns:1fr 40px 1fr;gap:0;align-items:start}
+.sep-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:50px;gap:6px}
+.swap{font-size:9px;writing-mode:vertical-rl;padding:5px 3px;height:64px;border:1px solid var(--g200);border-radius:8px;background:var(--white);color:var(--g400);cursor:pointer;transition:.15s;box-shadow:var(--sh-sm)}
+.swap:hover{border-color:var(--blue);color:var(--blue)}
+.eye-card{background:var(--white);border:1px solid var(--g200);border-radius:var(--r-lg);box-shadow:var(--sh-sm);overflow:visible}
+.eye-hdr{display:flex;align-items:center;gap:9px;padding:12px 16px 10px;border-bottom:1px solid var(--g100)}
+.eye-pill-od{font-size:12px;font-weight:600;color:var(--white);background:var(--navy);padding:4px 11px;border-radius:20px}
+.eye-pill-og{font-size:12px;font-weight:600;color:var(--white);background:var(--teal);padding:4px 11px;border-radius:20px}
+.status-wrap{margin-left:auto;position:relative}
+.sp{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 9px;border-radius:20px;cursor:pointer;border:1.5px solid transparent;user-select:none}
+.sp-sec{background:var(--green-light);color:var(--green);border-color:#86EFAC}
+.sp-sta{background:var(--amber-light);color:var(--amber);border-color:#FCD34D}
+.sp-exs{background:var(--red-light);color:var(--red);border-color:#FCA5A5}
+.sp .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sp-sec .dot{background:var(--green)}.sp-sta .dot{background:var(--amber)}.sp-exs .dot{background:var(--red)}
+.st-dd{display:none;position:absolute;right:0;top:35px;background:var(--white);border:1px solid var(--g200);border-radius:var(--r-sm);box-shadow:var(--sh-lg);z-index:300;min-width:130px;overflow:hidden}
+.st-dd.open{display:block}
+.st-opt{display:flex;align-items:center;gap:7px;padding:8px 12px;font-size:12px;cursor:pointer;color:var(--g700)}
+.st-opt:hover{background:var(--g50)}
+.inner{padding:0 14px 12px}
+.slbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--g400);margin:12px 0 7px;display:flex;align-items:center;gap:7px}
+.slbl::after{content:'';flex:1;height:1px;background:var(--g100)}
+.pills{display:flex;gap:4px;flex-wrap:wrap}
+.pill{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;border:1.5px solid var(--g200);cursor:pointer;color:var(--g500);background:var(--white);transition:.15s;user-select:none}
+.pill.on{background:var(--blue);border-color:var(--blue);color:var(--white)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fld{display:flex;flex-direction:column;gap:3px}
+.lbl{font-size:11px;font-weight:500;color:var(--g500)}
+.sel,.inp{font-size:12px;font-family:'DM Sans',sans-serif;color:var(--g900);background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-sm);padding:6px 9px;width:100%;transition:.15s}
+.sel:focus,.inp:focus{outline:none;border-color:var(--blue);background:var(--white)}
+.pb{background:var(--g50);border:1px solid var(--g100);border-radius:var(--r-sm);padding:10px;margin-top:7px;display:flex;flex-direction:column;gap:8px}
+.pr{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.plbl{font-size:11px;font-weight:500;color:var(--g500);min-width:100px;flex-shrink:0}
+.dow-row{display:flex;gap:8px;flex-wrap:wrap}
+.dcb{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--g500);cursor:pointer;user-select:none}
+.tog-sw{position:relative;display:inline-block;width:28px;height:16px;flex-shrink:0}
+.tog-sw input{opacity:0;width:0;height:0;position:absolute}
+.tog-sw .sl{position:absolute;cursor:pointer;inset:0;background:var(--g200);border-radius:16px;transition:.15s}
+.tog-sw input:checked+.sl{background:var(--blue)}
+.tog-sw .sl:before{position:absolute;content:'';height:10px;width:10px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.15s}
+.tog-sw input:checked+.sl:before{transform:translateX(12px)}
+.inj-today-btn{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--blue);background:var(--blue-light);border:1px solid #BFDBFE;border-radius:var(--r-sm);padding:6px 9px;cursor:pointer;font-weight:500;transition:.15s}
+.inj-today-btn:hover{background:#DBEAFE}
+.oct-blk{background:var(--navy);border-radius:var(--r-sm);padding:12px;margin-top:10px}
+.oct-sec-lbl{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px;margin-top:10px;display:flex;align-items:center;gap:7px}
+.oct-sec-lbl:first-child{margin-top:0}
+.oct-sec-lbl::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
+.oct-row{display:flex;align-items:flex-start;gap:7px;margin-bottom:7px;padding-bottom:7px;border-bottom:1px solid rgba(255,255,255,.06)}
+.oct-row:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.oct-lbl{font-size:11px;font-weight:600;color:rgba(255,255,255,.65);min-width:80px;flex-shrink:0;padding-top:4px}
+.oct-ctrl{display:flex;flex-direction:column;gap:5px;flex:1}
+.oct-sub{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.chips{display:flex;gap:3px;flex-wrap:wrap}
+.chip{font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;border:1px solid rgba(255,255,255,.14);cursor:pointer;color:rgba(255,255,255,.5);background:rgba(255,255,255,.04);transition:.15s;user-select:none;white-space:nowrap}
+.chip:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.8)}
+.chip.cg{background:rgba(22,163,74,.22);border-color:rgba(134,239,172,.45);color:#86EFAC}
+.chip.cw{background:rgba(217,119,6,.22);border-color:rgba(252,211,77,.45);color:#FCD34D}
+.chip.cr{background:rgba(220,38,38,.22);border-color:rgba(252,165,165,.45);color:#FCA5A5}
+.chip.cb{background:rgba(59,130,246,.28);border-color:rgba(147,197,253,.45);color:#93C5FD}
+.tt-wrap{position:relative;display:inline-flex;align-items:center}
+.tt-btn{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:help;flex-shrink:0;margin-left:4px;line-height:1}
+.tt-box{display:none;position:absolute;z-index:500;left:22px;top:-8px;background:#0a1628;border:1px solid rgba(255,255,255,.2);border-radius:10px;width:270px;pointer-events:none;box-shadow:0 12px 40px rgba(0,0,0,.7);overflow:hidden}
+.tt-wrap:hover .tt-box{display:block}
+.tt-img{width:100%;display:block;max-height:125px;object-fit:cover}
+.tt-caption{padding:9px 11px;font-size:11px;color:rgba(255,255,255,.7);line-height:1.55;border-top:1px solid rgba(255,255,255,.1)}
+.tt-caption strong{color:rgba(255,255,255,.95);display:block;margin-bottom:2px}
+.nl-in{width:50px;font-size:11px;padding:3px 5px;border:1px solid rgba(255,255,255,.14);border-radius:6px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.8);font-family:'DM Mono',monospace;text-align:center}
+.nl-in:focus{outline:none;border-color:rgba(59,130,246,.5)}
+.nl-u{font-size:10px;color:rgba(255,255,255,.3)}
+.dates-panel{background:linear-gradient(135deg,var(--navy) 0%,#0F2A4A 100%);border-radius:var(--r-sm);padding:12px;margin-top:8px}
+.dp-hdr{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px}
+.dp-item{display:flex;align-items:baseline;gap:5px;margin-bottom:4px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,.06);font-size:11px;flex-wrap:wrap}
+.dp-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.dp-n{font-weight:700;color:#60A5FA;min-width:20px;font-family:'DM Mono',monospace;flex-shrink:0}
+.dp-main{color:var(--white);font-weight:500}.dp-win{font-size:10px;color:rgba(255,255,255,.38)}
+.dp-ctrl{font-size:10px;color:#FCD34D;font-style:italic}
+.dp-empty{font-size:11px;color:rgba(255,255,255,.28);font-style:italic}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:7px}
+.metric-box{background:var(--g50);border:1px solid var(--g100);border-radius:8px;padding:7px 11px}
+.metric-lbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--g400);margin-bottom:2px}
+.metric-inp{font-size:13px;font-weight:600;color:var(--g900);background:none;border:none;width:100%;font-family:'DM Mono',monospace}
+.metric-inp:focus{outline:none}
+.synth-card{background:var(--white);border:1px solid var(--g200);border-radius:var(--r-lg);padding:14px 16px;margin-top:10px;box-shadow:var(--sh-sm)}
+.synth-box{font-size:11px;font-family:'DM Mono',monospace;line-height:1.65;color:var(--g700);background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-sm);padding:10px 11px;margin-top:7px;white-space:pre-wrap;display:none}
+.cbtn{font-size:11px;font-weight:600;padding:5px 12px;border-radius:7px;border:1px solid var(--g200);background:var(--white);color:var(--g700);cursor:pointer;transition:.15s}
+.cbtn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+.copy-fb{font-size:11px;color:var(--green);font-weight:500;display:none}
+.assist-layout{display:grid;grid-template-columns:360px 1fr;gap:14px;align-items:start}
+.apanel{background:var(--white);border:1px solid var(--g200);border-radius:var(--r-lg);padding:16px;box-shadow:var(--sh-sm);margin-bottom:12px}
+.apanel-title{font-size:13px;font-weight:600;color:var(--g900);margin-bottom:11px;padding-bottom:9px;border-bottom:1px solid var(--g100);display:flex;align-items:center;gap:8px}
+.a-icon{width:18px;height:18px;background:var(--blue-light);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cf-lbl{font-size:11px;font-weight:500;color:var(--g500);margin-bottom:3px;display:block}
+.cf-inp{font-size:12px;font-family:'DM Sans',sans-serif;color:var(--g900);background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:7px 10px;width:100%;margin-bottom:8px}
+.cf-inp:focus{outline:none;border-color:var(--blue);background:var(--white)}
+.dl-container{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.dl-row{display:flex;flex-direction:column;gap:5px;background:var(--g50);border:1px solid var(--g100);border-radius:10px;padding:8px 10px}
+.dl-row-top{display:flex;align-items:center;gap:7px}
+.dl-row-bottom{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.dl-num{width:21px;height:21px;background:var(--navy);color:white;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dl-eye-od{font-size:11px;font-weight:700;padding:3px 7px;border-radius:10px;background:#E6F1FB;color:#0C447C;flex-shrink:0;cursor:pointer;white-space:nowrap}
+.dl-eye-og{font-size:11px;font-weight:700;padding:3px 7px;border-radius:10px;background:#E0F7FA;color:#065F70;flex-shrink:0;cursor:pointer;white-space:nowrap}
+.dl-eye-both{font-size:11px;font-weight:700;padding:3px 7px;border-radius:10px;background:#F1F5F9;color:#475569;flex-shrink:0;cursor:pointer;white-space:nowrap}
+.dl-inp{flex:1;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--g900);background:transparent;border:none;min-width:80px}
+.dl-inp:focus{outline:none}
+.dl-time{font-size:13px;font-family:'DM Sans',sans-serif;color:var(--g700);background:var(--white);border:1px solid var(--g200);border-radius:6px;padding:3px 6px;width:90px;flex-shrink:0}
+.dl-time:focus{outline:none;border-color:var(--blue)}
+.dl-type{font-size:12px;border:1px solid var(--g200);border-radius:6px;padding:3px 6px;background:var(--white);color:var(--g700);font-family:'DM Sans',sans-serif;flex-shrink:0}
+.dl-copy{font-size:11px;font-weight:500;padding:3px 8px;border-radius:6px;border:1px solid var(--g200);background:var(--white);color:var(--g500);cursor:pointer;white-space:nowrap;transition:.15s;flex-shrink:0}
+.dl-copy:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+.dl-del{width:22px;height:22px;border:none;background:none;color:var(--g400);font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:6px;flex-shrink:0;line-height:1;margin-left:auto}
+.dl-del:hover{color:var(--red);background:var(--red-light)}
+.dl-add{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--blue);background:var(--blue-light);border:1px dashed #BFDBFE;border-radius:8px;padding:7px 10px;cursor:pointer;transition:.15s;width:100%}
+.dl-add:hover{background:#DBEAFE;border-color:var(--blue)}
+.consigne-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;padding:7px 9px;background:var(--g50);border:1px solid var(--g100);border-radius:8px;cursor:pointer;transition:.15s}
+.consigne-item.on{background:var(--green-light);border-color:#86EFAC}
+.consigne-chk{width:14px;height:14px;border:1.5px solid var(--g200);border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:.15s}
+.consigne-item.on .consigne-chk{background:var(--green);border-color:var(--green)}
+.consigne-txt{font-size:11px;color:var(--g700);line-height:1.5}
+.consigne-custom{width:100%;font-size:11px;font-family:'DM Sans',sans-serif;color:var(--g900);background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:6px 10px;resize:vertical;min-height:56px;margin-top:7px}
+.consigne-custom:focus{outline:none;border-color:var(--blue)}
+.pdf-actions{display:flex;gap:8px;margin:0 0 12px}
+.btn-print{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:8px 14px;border-radius:8px;border:none;background:var(--navy);color:white;cursor:pointer;transition:.15s}
+.btn-print:hover{background:#162943}
+.btn-dl{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:8px 14px;border-radius:8px;border:none;background:var(--blue);color:white;cursor:pointer;transition:.15s}
+.btn-dl:hover{background:#1345C0}
+.preview-frame{background:white;border:1px solid var(--g200);border-radius:var(--r-sm);overflow:hidden;box-shadow:var(--sh-sm)}
+#pdf-content{padding:24px 28px;font-family:'DM Sans',Arial,sans-serif;font-size:12px;color:#1e293b;min-height:400px}
+.pdf-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.pdf-brand-nm{font-size:17px;font-weight:700;color:#0B1A2E}.pdf-brand-sub{font-size:9px;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em}
+.pdf-cabinet-info{text-align:right;font-size:11px;color:#64748B;line-height:1.7}
+.pdf-sep{border:none;border-top:2px solid #0B1A2E;margin:11px 0 13px}
+.pdf-sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#1A56DB;margin-bottom:9px}
+.pdf-eye-blk{background:#F8FAFC;border-left:4px solid #0B1A2E;border-radius:4px;padding:10px 13px;margin-bottom:11px}
+.pdf-eye-title{font-size:12px;font-weight:700;margin-bottom:5px}
+.pdf-info-row{font-size:11px;color:#64748B;margin-bottom:2px}.pdf-info-row span{color:#1e293b;font-weight:500}
+.pdf-dates-title{font-size:11px;font-weight:600;color:#1A56DB;margin:7px 0 4px}
+.pdf-date-row{font-size:13px;margin-bottom:4px;padding:4px 0;border-bottom:1px solid #E2E8F0;display:flex;gap:6px;align-items:baseline}
+.pdf-date-row:last-child{border-bottom:none}
+.pdf-dn{font-weight:700;color:#1A56DB;min-width:22px;font-family:'DM Mono',monospace;flex-shrink:0}.pdf-dmain{font-weight:500;flex:1}
+.pdf-dtype{color:#D97706;font-style:italic;font-size:11px;flex-shrink:0}
+.pdf-consigne-row{display:flex;gap:7px;margin-bottom:4px;font-size:11px}.pdf-bullet{color:#1A56DB;font-weight:700}
+.pdf-footer{margin-top:14px;font-size:9px;color:#CBD5E1;text-align:center;border-top:1px solid #E2E8F0;padding-top:8px}
+.eye-modal-overlay{display:none;position:fixed;inset:0;background:rgba(11,26,46,.5);z-index:9000;align-items:center;justify-content:center}
+.eye-modal-overlay.open{display:flex}
+.eye-modal{background:var(--white);border-radius:var(--r-lg);padding:20px 24px;box-shadow:var(--sh-lg);text-align:center;min-width:220px}
+.eye-modal-title{font-size:13px;font-weight:600;color:var(--g900);margin-bottom:14px}
+.eye-modal-btns{display:flex;gap:10px;justify-content:center}
+.eye-modal-od{padding:8px 20px;border-radius:8px;border:none;background:var(--navy);color:white;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.eye-modal-og{padding:8px 20px;border-radius:8px;border:none;background:var(--teal);color:white;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.eye-modal-od:hover{background:#162943}.eye-modal-og:hover{background:#067290}
+#toast{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:white;padding:10px 20px;border-radius:8px;font-size:13px;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,.3);font-family:'DM Sans',sans-serif;pointer-events:none}
+/* ---- AUTH BUTTON ---- */
+.auth-btn{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:5px 11px;border-radius:20px;border:1.5px solid var(--g200);background:var(--white);color:var(--g700);cursor:pointer;transition:.15s;white-space:nowrap}
+.auth-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+.auth-btn.connected{border-color:#86EFAC;background:var(--green-light);color:var(--green)}
+/* ---- PANEL / OVERLAY ---- */
+.rf-overlay{display:none;position:fixed;inset:0;background:rgba(11,26,46,.35);z-index:1000}
+.rf-overlay.open{display:block}
+.rf-panel{display:none;position:fixed;top:0;right:0;height:100vh;width:320px;background:var(--white);box-shadow:-8px 0 32px rgba(11,26,46,.14);z-index:1001;padding:20px;overflow-y:auto;flex-direction:column}
+.rf-panel.open{display:flex;flex-direction:column}
+.rf-panel-wide{width:380px}
+.rf-panel-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--g100)}
+.rf-panel-hdr span{font-size:14px;font-weight:700;color:var(--navy)}
+.rf-panel-close{background:none;border:none;font-size:22px;color:var(--g400);cursor:pointer;line-height:1;padding:0 2px}
+.rf-panel-close:hover{color:var(--g900)}
+.rf-tabs{display:flex;background:var(--g100);border-radius:8px;padding:3px;gap:2px;margin-bottom:14px}
+.rf-tab{flex:1;font-size:12px;font-weight:500;padding:5px;border-radius:6px;border:none;background:none;color:var(--g500);cursor:pointer;transition:.15s}
+.rf-tab.on{background:var(--white);color:var(--blue);box-shadow:var(--sh-sm)}
+.rf-2col{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0}
+.auth-error{font-size:11px;color:var(--red);min-height:16px;margin:4px 0}
+.auth-submit-btn{width:100%;padding:9px;border-radius:8px;border:none;background:var(--navy);color:white;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;font-family:'DM Sans',sans-serif;transition:.15s}
+.auth-submit-btn:hover{background:#162943}
+.auth-consent{background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:8px 10px;margin:6px 0}
+.rf-user-avatar{width:52px;height:52px;border-radius:50%;background:var(--navy);color:white;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
+.rf-user-name{text-align:center;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.rf-user-meta{text-align:center;font-size:11px;color:var(--g400)}
+.rf-action-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;border:1px solid var(--g200);background:var(--g50);color:var(--g700);font-size:12px;font-weight:500;cursor:pointer;transition:.15s;font-family:'DM Sans',sans-serif}
+.rf-action-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+.rf-action-danger{color:var(--red)!important}
+.rf-action-danger:hover{border-color:var(--red)!important;background:var(--red-light)!important;color:var(--red)!important}
+/* ---- AGENDA ---- */
+.unavail-row{display:flex;align-items:center;gap:8px;background:var(--g50);border:1px solid var(--g100);border-radius:8px;padding:8px 10px}
+.unavail-dot{width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0}
+.unavail-info{flex:1;min-width:0}
+.unavail-lbl{font-size:12px;font-weight:600;color:var(--g700)}
+.unavail-dates{font-size:10px;color:var(--g400)}
+.unavail-del{background:none;border:none;color:var(--g400);font-size:17px;cursor:pointer;padding:0 2px}
+.unavail-del:hover{color:var(--red)}
+.unavail-add-form{border-top:1px solid var(--g100);padding-top:12px;margin-top:4px}
+.dp-blocked{color:var(--amber)!important;font-style:italic}
+@media(max-width:768px){
+  .eyes-grid{grid-template-columns:1fr;}.sep-col{flex-direction:row;padding-top:0;padding:8px 0;justify-content:center;}
+  .assist-layout{grid-template-columns:1fr;}
+  .rf-panel{width:100vw}
+}
+</style>
+</head>
+<body>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ==================== AUTH PANEL ==================== -->
+<div class="rf-overlay" id="auth-overlay" onclick="hideAuthPanel()"></div>
+<div class="rf-panel" id="auth-panel">
+  <div class="rf-panel-hdr">
+    <span id="auth-panel-title">Connexion</span>
+    <button class="rf-panel-close" onclick="hideAuthPanel()">×</button>
+  </div>
+
+  <!-- Vue non connecté -->
+  <div id="auth-view-guest">
+    <div class="rf-tabs">
+      <button class="rf-tab on" id="tab-signin" onclick="switchAuthTab('signin')">Connexion</button>
+      <button class="rf-tab" id="tab-signup" onclick="switchAuthTab('signup')">Créer un compte</button>
+    </div>
+
+    <!-- Sign in -->
+    <div id="auth-signin-form">
+      <label class="cf-lbl">Email</label>
+      <input class="cf-inp" id="si-email" type="email" placeholder="dr.dupont@cabinet.fr">
+      <label class="cf-lbl">Mot de passe</label>
+      <input class="cf-inp" id="si-pwd" type="password" placeholder="••••••••">
+      <div class="auth-error" id="si-error"></div>
+      <button class="auth-submit-btn" onclick="doSignIn()">Se connecter</button>
+      <div style="text-align:center;margin-top:8px">
+        <span style="font-size:11px;color:var(--g400)">Mode invité : </span>
+        <span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="hideAuthPanel()">continuer sans compte</span>
+      </div>
+    </div>
+
+    <!-- Sign up -->
+    <div id="auth-signup-form" style="display:none">
+      <div class="rf-2col">
+        <div><label class="cf-lbl">Prénom</label><input class="cf-inp" id="su-prenom" type="text" placeholder="Marie"></div>
+        <div><label class="cf-lbl">Nom</label><input class="cf-inp" id="su-nom" type="text" placeholder="Dupont"></div>
+      </div>
+      <label class="cf-lbl">Email</label>
+      <input class="cf-inp" id="su-email" type="email" placeholder="dr.dupont@cabinet.fr">
+      <label class="cf-lbl">Mot de passe</label>
+      <input class="cf-inp" id="su-pwd" type="password" placeholder="8 caractères minimum">
+      <label class="cf-lbl">Téléphone</label>
+      <input class="cf-inp" id="su-tel" type="tel" placeholder="06 00 00 00 00">
+      <label class="cf-lbl">Lieu d'exercice</label>
+      <input class="cf-inp" id="su-lieu" type="text" placeholder="Paris 8e — Cabinet libéral">
+      <div class="auth-consent">
+        <label style="display:flex;gap:7px;align-items:flex-start;cursor:pointer">
+          <input type="checkbox" id="su-consent" style="margin-top:2px;flex-shrink:0">
+          <span style="font-size:10px;color:var(--g500);line-height:1.5">J'accepte que mes données d'usage (molécules, protocoles — sans données patient) soient utilisées de façon agrégée et anonymisée à des fins de recherche et d'amélioration de l'application.</span>
+        </label>
+      </div>
+      <div class="auth-error" id="su-error"></div>
+      <button class="auth-submit-btn" onclick="doSignUp()">Créer mon compte</button>
+    </div>
+  </div>
+
+  <!-- Vue connecté -->
+  <div id="auth-view-user" style="display:none">
+    <div class="rf-user-avatar" id="user-avatar-big"></div>
+    <div class="rf-user-name" id="user-fullname"></div>
+    <div class="rf-user-meta" id="user-meta"></div>
+
+    <div style="display:flex;flex-direction:column;gap:7px;margin-top:14px">
+      <button class="rf-action-btn" onclick="showProfileEdit()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Modifier le profil
+      </button>
+      <button class="rf-action-btn" onclick="showAgendaPanel()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+        Gérer l'agenda
+      </button>
+      <button class="rf-action-btn rf-action-danger" onclick="doSignOut()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Déconnexion
+      </button>
+    </div>
+
+    <!-- Edit profil inline -->
+    <div id="profile-edit-form" style="display:none;margin-top:14px;border-top:1px solid var(--g100);padding-top:12px">
+      <div style="font-size:12px;font-weight:600;color:var(--g700);margin-bottom:8px">Modifier le profil</div>
+      <div class="rf-2col">
+        <div><label class="cf-lbl">Prénom</label><input class="cf-inp" id="pe-prenom" type="text"></div>
+        <div><label class="cf-lbl">Nom</label><input class="cf-inp" id="pe-nom" type="text"></div>
+      </div>
+      <label class="cf-lbl">Téléphone</label>
+      <input class="cf-inp" id="pe-tel" type="tel">
+      <label class="cf-lbl">Lieu d'exercice</label>
+      <input class="cf-inp" id="pe-lieu" type="text">
+      <button class="auth-submit-btn" onclick="saveProfile()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== AGENDA PANEL ==================== -->
+<div class="rf-panel rf-panel-wide" id="agenda-panel" style="display:none">
+  <div class="rf-panel-hdr">
+    <span>Agenda — Indisponibilités</span>
+    <button class="rf-panel-close" onclick="hideAgendaPanel()">×</button>
+  </div>
+  <p style="font-size:11px;color:var(--g500);margin-bottom:12px">Les dates IVT calculées seront automatiquement décalées si elles tombent sur une période bloquée.</p>
+  <div id="unavail-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
+  <div class="unavail-add-form">
+    <div class="rf-2col">
+      <div><label class="cf-lbl">Du</label><input class="cf-inp" id="unav-start" type="date"></div>
+      <div><label class="cf-lbl">Au</label><input class="cf-inp" id="unav-end" type="date"></div>
+    </div>
+    <label class="cf-lbl">Label (ex: Vacances été)</label>
+    <input class="cf-inp" id="unav-label" type="text" placeholder="Congés, formation, congrès…">
+    <div style="display:flex;gap:8px;margin-top:4px;align-items:center">
+      <label style="display:flex;gap:5px;align-items:center;font-size:11px;color:var(--g500);cursor:pointer">
+        <input type="checkbox" id="unav-recurrent">
+        Se répète chaque année
+      </label>
+    </div>
+    <button class="auth-submit-btn" style="margin-top:8px" onclick="addUnavailability()">Ajouter</button>
+  </div>
+</div>
+
+<!-- Eye modal -->
+<div class="eye-modal-overlay" id="eye-modal">
+  <div class="eye-modal">
+    <div class="eye-modal-title">Quel œil ?</div>
+    <div class="eye-modal-btns">
+      <button class="eye-modal-od" onclick="resolveEyeModal('od')">OD</button>
+      <button class="eye-modal-og" onclick="resolveEyeModal('og')">OG</button>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="hdr">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="5.5" stroke="white" stroke-width="1.5"/>
+        <circle cx="9" cy="9" r="2" fill="white"/>
+        <line x1="9" y1="1" x2="9" y2="4" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="9" y1="14" x2="9" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <span class="logo-name">RetinaFlow</span>
+      <span class="logo-sub">IVT Management v9</span>
+    </div>
+  </div>
+  <nav class="tab-nav">
+    <button class="tnav on" id="tab-med" onclick="showTab('med')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Médecin — Cotation OCT
+    </button>
+    <button class="tnav" id="tab-ass" onclick="showTab('ass')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Assistante — Dates &amp; PDF
+    </button>
+  </nav>
+  <div class="hdr-right">
+    <div class="visit-tog">
+      <button class="vt on" id="vt-premiere" onclick="setVisitType('premiere')">1ère consultation</button>
+      <button class="vt" id="vt-suivi" onclick="setVisitType('suivi')">Suivi</button>
+    </div>
+    <div class="date-chip">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <input type="date" id="global-date" oninput="S.date=this.value">
+    </div>
+    <input class="prat-input" type="text" id="prat-input" placeholder="Praticien" oninput="S.prat=this.value">
+    <button class="auth-btn" id="auth-btn" onclick="showAuthPanel()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span id="auth-btn-label">Connexion</span>
+    </button>
+  </div>
+</header>
+
+<!-- ==================== PANE MÉDECIN ==================== -->
+<div class="pane on body" id="pane-med">
+  <div class="eyes-grid">
+
+    <!-- OD -->
+    <div class="eye-card">
+      <div class="eye-hdr">
+        <span class="eye-pill-od">OD</span>
+        <span style="font-size:11px;color:var(--g400)">Œil droit</span>
+        <div class="status-wrap">
+          <span class="sp sp-sec" id="status-badge-od" onclick="toggleStatusDD('od')">
+            <span class="dot"></span><span id="status-label-od">Sec</span>
+          </span>
+          <div class="st-dd" id="st-dd-od">
+            <div class="st-opt" onclick="setStatus('od','sec')"><span class="dot" style="background:var(--green)"></span>Sec</div>
+            <div class="st-opt" onclick="setStatus('od','stable')"><span class="dot" style="background:var(--amber)"></span>Stable</div>
+            <div class="st-opt" onclick="setStatus('od','exsudatif')"><span class="dot" style="background:var(--red)"></span>Exsudatif</div>
+          </div>
+        </div>
+      </div>
+      <div class="inner" id="inner-od"></div>
+    </div>
+
+    <!-- Séparateur -->
+    <div class="sep-col">
+      <button class="swap" onclick="copyEye('od','og')" title="Copier OD vers OG">OD→OG</button>
+      <button class="swap" onclick="copyEye('og','od')" title="Copier OG vers OD">OG→OD</button>
+    </div>
+
+    <!-- OG -->
+    <div class="eye-card">
+      <div class="eye-hdr">
+        <span class="eye-pill-og">OG</span>
+        <span style="font-size:11px;color:var(--g400)">Œil gauche</span>
+        <div class="status-wrap">
+          <span class="sp sp-sec" id="status-badge-og" onclick="toggleStatusDD('og')">
+            <span class="dot"></span><span id="status-label-og">Sec</span>
+          </span>
+          <div class="st-dd" id="st-dd-og">
+            <div class="st-opt" onclick="setStatus('og','sec')"><span class="dot" style="background:var(--green)"></span>Sec</div>
+            <div class="st-opt" onclick="setStatus('og','stable')"><span class="dot" style="background:var(--amber)"></span>Stable</div>
+            <div class="st-opt" onclick="setStatus('og','exsudatif')"><span class="dot" style="background:var(--red)"></span>Exsudatif</div>
+          </div>
+        </div>
+      </div>
+      <div class="inner" id="inner-og"></div>
+    </div>
+  </div>
+
+  <!-- Synthèse -->
+  <div class="synth-card">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:13px;font-weight:600;color:var(--g900)">Synthèse clinique</span>
+      <div style="display:flex;align-items:center;gap:7px">
+        <button class="cbtn" onclick="genAndShowSynth()">Générer</button>
+        <button class="cbtn" onclick="copySynth()">Copier</button>
+        <span class="copy-fb" id="copy-fb">Copié ✓</span>
+      </div>
+    </div>
+    <div class="synth-box" id="synth-box"></div>
+  </div>
+</div>
+
+<!-- ==================== PANE ASSISTANTE ==================== -->
+<div class="pane body" id="pane-ass">
+  <div class="assist-layout">
+    <div>
+      <!-- Cabinet -->
+      <div class="apanel">
+        <div class="apanel-title">
+          <div class="a-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1A56DB" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+          Cabinet
+        </div>
+        <label class="cf-lbl">Praticien</label>
+        <input class="cf-inp" id="ass-prat" type="text" placeholder="Dr …" oninput="S.ass.prat=this.value;updatePDF()">
+        <label class="cf-lbl">Cabinet / Établissement</label>
+        <input class="cf-inp" id="ass-cabinet" type="text" placeholder="Cabinet d'ophtalmologie …" oninput="S.ass.cabinet=this.value;updatePDF()">
+        <label class="cf-lbl">Téléphone</label>
+        <input class="cf-inp" id="ass-phone" type="tel" placeholder="01 00 00 00 00" oninput="S.ass.phone=this.value;updatePDF()">
+      </div>
+
+      <!-- Médicament injecté -->
+      <div class="apanel" id="ass-mol-panel"></div>
+
+      <!-- Dates IVT -->
+      <div class="apanel">
+        <div class="apanel-title">
+          <div class="a-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1A56DB" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></div>
+          Dates IVT
+        </div>
+        <div class="dl-container" id="dl-container"></div>
+        <button class="dl-add" onclick="addDateLine()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Ajouter une date
+        </button>
+      </div>
+
+      <!-- Consignes -->
+      <div class="apanel">
+        <div class="apanel-title">
+          <div class="a-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1A56DB" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+          Consignes post-IVT
+        </div>
+        <div id="consignes-list"></div>
+        <textarea class="consigne-custom" id="consigne-custom" placeholder="Consigne personnalisée…" oninput="S.ass.consigneCustom=this.value;updatePDF()"></textarea>
+      </div>
+
+      <!-- Note patient -->
+      <div class="apanel">
+        <div class="apanel-title">
+          <div class="a-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1A56DB" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+          Note patient
+        </div>
+        <textarea class="consigne-custom" id="patient-note" placeholder="Informations complémentaires pour le patient…" oninput="S.ass.patientNote=this.value;updatePDF()"></textarea>
+      </div>
+
+      <!-- Actions PDF -->
+      <div class="pdf-actions">
+        <button class="btn-print" onclick="printPDF()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Imprimer
+        </button>
+        <button class="btn-dl" onclick="downloadPDF()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Télécharger PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Aperçu PDF -->
+    <div>
+      <div style="font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--g400);margin-bottom:8px">Aperçu PDF</div>
+      <div class="preview-frame">
+        <div id="pdf-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- iframe caché pour impression -->
+<iframe id="print-frame" style="display:none;position:absolute;width:0;height:0;border:none"></iframe>
+
+<script>
+// ============================================================
+// OCT SVG IMAGES
+// ============================================================
+function mkSVG(s){return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s);}
+const OCT_IMG={
+  irf:mkSVG('<svg xmlns="http://www.w3.org/2000/svg" width="270" height="120" viewBox="0 0 270 120"><rect width="270" height="120" fill="#060d1a"/><path d="M0,22 Q135,20 270,22" stroke="#4a5568" fill="none" stroke-width="0.7"/><path d="M0,36 Q135,34 270,36" stroke="#4a5568" fill="none" stroke-width="0.5"/><path d="M0,46 C40,44 75,48 95,54 C110,58 122,62 135,63 C148,64 160,60 175,54 C195,48 230,44 270,46" stroke="#60a5fa" fill="none" stroke-width="2.5"/><ellipse cx="98" cy="66" rx="15" ry="9" fill="#0f2d5e" stroke="#3b82f6" stroke-width="1.2"/><ellipse cx="135" cy="64" rx="19" ry="11" fill="#0f2d5e" stroke="#3b82f6" stroke-width="1.3"/><ellipse cx="172" cy="66" rx="13" ry="8" fill="#0f2d5e" stroke="#3b82f6" stroke-width="1.1"/><path d="M0,80 Q135,77 270,80" stroke="#475569" fill="none" stroke-width="1.5"/><path d="M0,90 Q135,87 270,90" stroke="#334155" fill="none" stroke-width="1"/><text x="135" y="112" fill="rgba(148,163,184,0.5)" font-family="monospace" font-size="9" text-anchor="middle">IRF — logettes kystiques intra-rétiniennes</text></svg>'),
+  om:mkSVG('<svg xmlns="http://www.w3.org/2000/svg" width="270" height="120" viewBox="0 0 270 120"><rect width="270" height="120" fill="#060d1a"/><path d="M0,18 Q135,16 270,18" stroke="#4a5568" fill="none" stroke-width="0.7"/><path d="M0,32 C40,30 75,34 95,42 C110,48 122,54 135,56 C148,58 160,52 175,46 C195,38 230,33 270,32" stroke="#60a5fa" fill="none" stroke-width="2.5"/><path d="M0,62 C40,58 75,62 95,68 C115,74 135,78 155,74 C175,70 215,63 270,62" stroke="#93c5fd" fill="none" stroke-width="1" opacity="0.4"/><path d="M88,42 C100,50 108,65 104,78 C100,88 90,90 84,82 C78,74 84,58 88,42" fill="#0f2d5e" stroke="#3b82f6" stroke-width="1" opacity="0.7"/><path d="M135,40 C148,50 155,66 152,79 C149,90 139,93 132,85 C125,77 130,58 135,40" fill="#0f2d5e" stroke="#3b82f6" stroke-width="1" opacity="0.7"/><path d="M0,92 Q135,89 270,92" stroke="#334155" fill="none" stroke-width="1.5"/><text x="135" y="112" fill="rgba(148,163,184,0.5)" font-family="monospace" font-size="9" text-anchor="middle">OMC / SRF — œdème maculaire</text></svg>'),
+  dsr:mkSVG('<svg xmlns="http://www.w3.org/2000/svg" width="270" height="120" viewBox="0 0 270 120"><rect width="270" height="120" fill="#060d1a"/><path d="M0,22 Q135,20 270,22" stroke="#4a5568" fill="none" stroke-width="0.7"/><path d="M0,38 C40,36 75,39 95,44 C110,47 122,49 135,49 C148,49 160,47 175,44 C195,39 230,36 270,38" stroke="#60a5fa" fill="none" stroke-width="2.5"/><path d="M88,49 C78,55 76,68 80,77 C84,86 98,88 135,88 C172,88 186,86 190,77 C194,68 192,55 182,49 Z" fill="#0d1f3c" stroke="#3b82f6" stroke-width="1.2" opacity="0.85"/><path d="M88,49 C98,53 116,55 135,55 C154,55 172,53 182,49" stroke="#93c5fd" fill="none" stroke-width="1.5"/><path d="M0,92 Q135,89 270,92" stroke="#475569" fill="none" stroke-width="1.5"/><text x="135" y="112" fill="rgba(148,163,184,0.5)" font-family="monospace" font-size="9" text-anchor="middle">DSR — décollement séreux rétinien</text></svg>'),
+  dep:mkSVG('<svg xmlns="http://www.w3.org/2000/svg" width="270" height="120" viewBox="0 0 270 120"><rect width="270" height="120" fill="#060d1a"/><path d="M0,26 Q135,24 270,26" stroke="#4a5568" fill="none" stroke-width="0.7"/><path d="M0,40 C40,38 75,41 95,44 C110,46 122,47 135,47 C148,47 160,46 175,44 C195,41 230,38 270,40" stroke="#60a5fa" fill="none" stroke-width="2.5"/><path d="M0,54 C38,52 85,53 96,53 C108,53 114,56 124,65 C132,72 135,77 142,77 C149,77 155,72 162,65 C170,57 178,53 184,53 C204,53 232,52 270,54" stroke="#fcd34d" fill="none" stroke-width="2"/><path d="M96,53 C108,53 114,56 124,65 C132,72 135,77 142,77 C149,77 155,72 162,65 C170,57 178,53 184,53 L184,86 C166,88 150,89 135,89 C120,89 106,88 96,86 Z" fill="#1a1500" stroke="none" opacity="0.75"/><path d="M0,89 Q135,86 270,89" stroke="#475569" fill="none" stroke-width="1.5"/><text x="135" y="112" fill="rgba(148,163,184,0.5)" font-family="monospace" font-size="9" text-anchor="middle">DEP — décollement épithélium pigmentaire</text></svg>'),
+  atrophique:mkSVG('<svg xmlns="http://www.w3.org/2000/svg" width="270" height="120" viewBox="0 0 270 120"><rect width="270" height="120" fill="#060d1a"/><path d="M0,28 Q135,26 270,28" stroke="#4a5568" fill="none" stroke-width="0.7"/><path d="M0,38 C40,37 75,39 95,40 C115,40 125,40 135,40 C145,40 155,40 175,40 C195,39 230,37 270,38" stroke="#94a3b8" fill="none" stroke-width="1.2"/><path d="M0,44 C40,43 75,45 95,46 C115,46 125,46 135,46 C145,46 155,46 175,46 C195,45 230,43 270,44" stroke="#60a5fa" fill="none" stroke-width="2"/><rect x="96" y="38" width="78" height="14" fill="#060d1a" opacity="0.8" rx="2"/><path d="M96,38 L174,38" stroke="rgba(248,113,113,0.6)" stroke-width="1" stroke-dasharray="3,2"/><text x="135" y="48" fill="rgba(248,113,113,0.5)" font-family="monospace" font-size="7.5" text-anchor="middle">zone atrophique</text><path d="M0,58 Q135,55 270,58" stroke="#334155" fill="none" stroke-width="1"/><path d="M0,68 Q135,65 270,68" stroke="#1e293b" fill="none" stroke-width="0.8"/><text x="135" y="112" fill="rgba(148,163,184,0.5)" font-family="monospace" font-size="9" text-anchor="middle">Atrophie — stade cicatriciel</text></svg>')
+};
+
+// ============================================================
+// CONSTANTES
+// ============================================================
+const PATHOS=['DMLA exsudative','OM diabétique','Irvine-Gass','OVR-OVCR','OVR-OBVR','OM uvéitique'];
+const MOLS=['Eylea 2mg','Eylea 8mg','Vabysmo','Avastin','Béovu','Lucentis','Ozurdex','Iluvien','Biosimilaire'];
+const PROTOS=[{k:'charge',l:'Dose de charge'},{k:'te',l:'T&E'},{k:'tripla',l:'Tripla'},{k:'prn',l:'PRN'},{k:'fixe',l:'Fixe mensuel'}];
+const LOADING_PRESETS=['2.4.4','2.6.6','3.4.4','3.4.6','3.4.8','3.6.6','3.8.8','4.4.4','4.4.8','5.4.4','5.4.8'];
+const DAY_LABELS={1:'Lun',2:'Mar',3:'Mer',4:'Jeu',5:'Ven'};
+const MONTHS_FR=['jan.','fév.','mar.','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
+const DAYS_FR=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+const STATUS_CFG={
+  sec:{label:'Sec',cls:'sp-sec'},
+  stable:{label:'Stable',cls:'sp-sta'},
+  exsudatif:{label:'Exsudatif',cls:'sp-exs'}
+};
+const CONSIGNES_STD=[
+  'Ne pas frotter l\'œil injecté pendant 24h',
+  'Collyre antibiotique (Tobramycine) 3x/jour pendant 3 jours',
+  'En cas de douleur intense ou baisse brutale de vision : contacter le cabinet',
+  'Vision légèrement floue les premières heures (bulle de gaz) : normal',
+  'Éviter la piscine et les bains de mer pendant 5 jours',
+  'Éviter le port de lentilles de contact pendant 5 jours'
+];
+
+// ============================================================
+// STATE
+// ============================================================
+function mkEye(){
+  return {
+    patho:'',mol:'',proto:'',loading:'3.4.4',status:'sec',
+    oct_irf:false,oct_irf_nl:'',
+    oct_srf:false,oct_srf_nl:'',
+    oct_dsr:false,oct_dsr_nl:'',
+    oct_dep:'',oct_dep_nl:'',
+    oct_omc:false,oct_atrophy:false,
+    oct_ma:false,oct_he:false,oct_neo:'',
+    av:'',cft:'',
+    injDate:'',lastInjDate:'',dowPref:[],
+    adjustment:2,seriesCount:3,ctrlMode:'last'
+  };
+}
+const S={
+  date:'',prat:'',visitType:'premiere',
+  od:mkEye(),og:mkEye(),
+  ass:{prat:'',cabinet:'',phone:'',molOD:'',molOG:'',dateLines:[],consignes:[],consigneCustom:'',patientNote:''},
+  _dlId:0,
+  unavailabilities:[] // {id,label,start_date,end_date,recurrent}
+};
+
+// ============================================================
+// UTILITAIRES DATE
+// ============================================================
+function fmtDate(d){
+  if(!d||isNaN(d))return'—';
+  return d.getDate().toString().padStart(2,'0')+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getFullYear();
+}
+function fmtDateLong(d){
+  if(!d||isNaN(d))return'—';
+  return DAYS_FR[d.getDay()]+' '+d.getDate()+' '+MONTHS_FR[d.getMonth()]+' '+d.getFullYear();
+}
+function fmtDateShort(d){
+  if(!d||isNaN(d))return'—';
+  return DAYS_FR[d.getDay()]+' '+d.getDate().toString().padStart(2,'0')+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getFullYear();
+}
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function addWeeks(d,w){return addDays(d,w*7);}
+function adjustDOW(d,prefs){
+  if(!prefs||prefs.length===0)return d;
+  const ps=prefs.map(Number);
+  let best=null,bd=99;
+  for(let i=-3;i<=3;i++){
+    const c=addDays(d,i);
+    const dow=c.getDay()===0?7:c.getDay(); // 1=Mon ... 7=Sun
+    if(ps.includes(c.getDay()===0?7:c.getDay())){if(Math.abs(i)<bd){bd=Math.abs(i);best=c;}}
+  }
+  return best||d;
+}
+function parseDate(s){if(!s)return null;const[y,m,d]=s.split('-').map(Number);const r=new Date(y,m-1,d);return isNaN(r)?null:r;}
+
+// ============================================================
+// CALCUL DATES
+// ============================================================
+function calcDates(eye){
+  const s=S[eye];
+  const dates=[];
+  const today=parseDate(s.injDate);
+  if(!today)return dates;
+  const prefs=s.dowPref;
+  const proto=s.proto;
+  const adjW=(s.adjustment||2)*7;
+  const nSeries=s.seriesCount||3;
+
+  function skipUnavail(d){
+    const unavs=S.unavailabilities||[];
+    if(!unavs.length)return d;
+    let cur=new Date(d);
+    for(let attempt=0;attempt<90;attempt++){
+      const blocked=unavs.some(u=>{
+        const s=new Date(u.start_date+'T00:00:00');
+        const e=new Date(u.end_date+'T23:59:59');
+        if(cur>=s&&cur<=e)return true;
+        if(u.recurrent){
+          const sd=new Date(u.start_date),ed=new Date(u.end_date);
+          const cs=new Date(cur.getFullYear(),sd.getMonth(),sd.getDate());
+          const ce=new Date(cur.getFullYear(),ed.getMonth(),ed.getDate());
+          if(cur>=cs&&cur<=ce)return true;
+        }
+        return false;
+      });
+      if(!blocked)return cur;
+      cur=addDays(cur,1);
+    }
+    return d;
+  }
+  function adj(d,useLast){
+    const p=(useLast&&s.dowPrefLast&&s.dowPrefLast.length)?s.dowPrefLast:prefs;
+    return skipUnavail(adjustDOW(d,p));
+  }
+  function diffD(a,b){return Math.round((a.getTime()-b.getTime())/86400000);}
+  function qLbl(days){return'Q'+Math.floor(days/7)+' ('+days+' j)';}
+  function winStr(d){return'('+fmtDateShort(addDays(d,-3))+' — '+fmtDateShort(addDays(d,3))+')'; }
+
+  if(proto==='charge'){
+    const parts=(s.loading||'3.4.4').split('.').map(Number);
+    const n=parts[0]||3,w1=parts[1]||4,w2=(parts[2]!==undefined?parts[2]:w1);
+    let prev=today;
+    for(let i=0;i<n;i++){
+      const raw=i===0?new Date(today):addWeeks(prev,w1);
+      const d=adj(raw,false);
+      dates.push({n:i+1,date:d,type:'charge',note:qLbl(diffD(d,i===0?today:prev)),win:winStr(d)});
+      prev=d;
+    }
+    const lastD=adj(addWeeks(prev,w2),true);
+    dates.push({n:n+1,date:lastD,type:'charge',note:qLbl(diffD(lastD,prev)),win:winStr(lastD),ctrl:true});
+
+  }else if(proto==='te'){
+    const last=parseDate(s.lastInjDate);
+    if(!last)return dates;
+    const currentInterval=diffD(today,last);
+    let statusAdj=0;
+    if(s.status==='sec')statusAdj=adjW;
+    else if(s.status==='exsudatif')statusAdj=-adjW;
+    const newInterval=Math.max(28,currentInterval+statusAdj);
+    let prev=today;
+    for(let i=0;i<nSeries;i++){
+      const isLast=i===nSeries-1;
+      const d=adj(addDays(prev,newInterval),isLast);
+      const ctrl=isLast||(s.ctrlMode==='all');
+      dates.push({n:i+1,date:d,type:'te',note:qLbl(diffD(d,prev)),win:winStr(d),ctrl});
+      prev=d;
+    }
+
+  }else if(proto==='tripla'){
+    const last=parseDate(s.lastInjDate);
+    if(!last)return dates;
+    const currentInterval=diffD(today,last);
+    let statusAdj=0;
+    if(s.status==='sec')statusAdj=adjW;
+    else if(s.status==='exsudatif')statusAdj=-adjW;
+    const baseInterval=Math.max(28,currentInterval+statusAdj);
+    let prev=today;
+    for(let i=0;i<3;i++){
+      const isLast=i===2;
+      const interval=isLast?baseInterval+14:baseInterval;
+      const d=adj(addDays(prev,interval),isLast);
+      const ctrl=isLast||(s.ctrlMode==='all');
+      dates.push({n:i+1,date:d,type:'tripla',note:qLbl(diffD(d,prev)),win:winStr(d),ctrl});
+      prev=d;
+    }
+
+  }else if(proto==='prn'){
+    const d1=adj(new Date(today),false);
+    dates.push({n:1,date:d1,type:'prn',note:qLbl(diffD(d1,today)),win:winStr(d1)});
+    const ctrlD=adj(addWeeks(today,4),false);
+    dates.push({n:'',date:ctrlD,type:'ctrl',note:qLbl(diffD(ctrlD,today)),win:winStr(ctrlD)});
+
+  }else if(proto==='fixe'){
+    const last=parseDate(s.lastInjDate);
+    if(!last)return dates;
+    const fixedInterval=diffD(today,last);
+    if(fixedInterval<=0)return dates;
+    let prev=today;
+    for(let i=0;i<nSeries;i++){
+      const isLast=i===nSeries-1;
+      const d=adj(addDays(prev,fixedInterval),isLast);
+      const ctrl=isLast||(s.ctrlMode==='all');
+      dates.push({n:i+1,date:d,type:'fixe',note:qLbl(diffD(d,prev)),win:winStr(d),ctrl});
+      prev=d;
+    }
+  }
+  return dates;
+}
+
+// ============================================================
+// BUILD EYE INNER HTML
+// ============================================================
+function buildEyeInner(e){
+  const ttImg=(key,title,desc)=>`<span class="tt-wrap"><span class="tt-btn">?</span><div class="tt-box"><img class="tt-img" src="${OCT_IMG[key]||OCT_IMG.irf}" alt="${key}"><div class="tt-caption"><strong>${title}</strong>${desc}</div></div></span>`;
+  return`
+<div class="slbl">Pathologie</div>
+<div class="pills" id="pills-patho-${e}">
+  ${PATHOS.map(p=>`<span class="pill" data-val="${p}" onclick="selectPill('${e}','patho','${p}',this)">${p}</span>`).join('')}
+</div>
+<div class="slbl">Molécule</div>
+<div class="pills" id="pills-mol-${e}">
+  ${MOLS.map(m=>`<span class="pill" data-val="${m}" onclick="selectPill('${e}','mol','${m}',this)">${m}</span>`).join('')}
+</div>
+<div class="slbl">Protocole</div>
+<div class="pills" id="pills-proto-${e}">
+  ${PROTOS.map(p=>`<span class="pill" data-key="${p.k}" onclick="selectProto('${e}','${p.k}',this)">${p.l}</span>`).join('')}
+</div>
+<div id="loading-row-${e}" style="display:none">
+  <div class="pb" style="margin-top:6px">
+    <div class="pr">
+      <span class="plbl">Format charge</span>
+      <input type="text" class="inp" id="loading-${e}" value="3.4.4" style="width:72px" oninput="S['${e}'].loading=this.value;renderDates('${e}')">
+    </div>
+    <div id="loading-presets-${e}" style="display:flex;gap:3px;flex-wrap:wrap;margin-top:4px">
+      ${LOADING_PRESETS.map(p=>`<span class="pill" style="font-size:10px;padding:2px 6px" onclick="setLoading('${e}','${p}')">${p}</span>`).join('')}
+    </div>
+  </div>
+</div>
+
+<div class="oct-blk">
+  <div class="oct-sec-lbl">Fluide</div>
+  <div class="oct-row">
+    <span class="oct-lbl">IRF${ttImg('irf','IRF — Intraretinal Fluid','Logettes kystiques intra-rétiniennes. Indicateur d\'activité néovasculaire.')}</span>
+    <div class="oct-ctrl"><div class="oct-sub">
+      <div class="chips"><span class="chip" id="chip-irf-${e}" onclick="toggleBool('${e}','oct_irf',this)">Présent</span></div>
+      <input class="nl-in" id="irf-nl-${e}" type="number" min="0" placeholder="—" oninput="S['${e}'].oct_irf_nl=this.value">
+      <span class="nl-u">nl</span>
+    </div></div>
+  </div>
+  <div class="oct-row">
+    <span class="oct-lbl">SRF${ttImg('om','SRF — Subretinal Fluid','Fluide sous-rétinien entre la rétine et l\'EPR. Signe d\'activité exsudative.')}</span>
+    <div class="oct-ctrl"><div class="oct-sub">
+      <div class="chips"><span class="chip" id="chip-srf-${e}" onclick="toggleBool('${e}','oct_srf',this)">Présent</span></div>
+      <input class="nl-in" id="srf-nl-${e}" type="number" min="0" placeholder="—" oninput="S['${e}'].oct_srf_nl=this.value">
+      <span class="nl-u">nl</span>
+    </div></div>
+  </div>
+  <div class="oct-row">
+    <span class="oct-lbl">DSR${ttImg('dsr','DSR — Décollement Séreux Rétinien','Soulèvement de la rétine neurosensorielle par accumulation de fluide sous-rétinien.')}</span>
+    <div class="oct-ctrl"><div class="oct-sub">
+      <div class="chips"><span class="chip" id="chip-dsr-${e}" onclick="toggleBool('${e}','oct_dsr',this)">Présent</span></div>
+      <input class="nl-in" id="dsr-nl-${e}" type="number" min="0" placeholder="—" oninput="S['${e}'].oct_dsr_nl=this.value">
+      <span class="nl-u">nl</span>
+    </div></div>
+  </div>
+  <div class="oct-row">
+    <span class="oct-lbl">DEP${ttImg('dep','DEP — Décollement de l\'Épithélium Pigmentaire','Soulèvement de l\'EPR. Peut être séreux, drusénoïde (drusen confluents) ou fibro-vasculaire (type 1).')}</span>
+    <div class="oct-ctrl">
+      <div class="chips" id="chips-dep-${e}">
+        <span class="chip" data-dep="sereux" onclick="selectDEP('${e}','sereux',this)">Séreux</span>
+        <span class="chip" data-dep="drusenoide" onclick="selectDEP('${e}','drusenoide',this)">Drusénoïde</span>
+        <span class="chip" data-dep="fibro" onclick="selectDEP('${e}','fibro',this)">Fibro-vasc.</span>
+      </div>
+      <div class="oct-sub" style="margin-top:4px">
+        <input class="nl-in" id="dep-nl-${e}" type="number" min="0" placeholder="—" oninput="S['${e}'].oct_dep_nl=this.value">
+        <span class="nl-u">nl</span>
+      </div>
+    </div>
+  </div>
+  <div class="oct-row">
+    <span class="oct-lbl">OMC${ttImg('om','OMC — Œdème Maculaire Cystoïde','Logettes kystiques dans la région maculaire, souvent centré sur la fovéa.')}</span>
+    <div class="oct-ctrl"><div class="oct-sub">
+      <div class="chips"><span class="chip" id="chip-omc-${e}" onclick="toggleBool('${e}','oct_omc',this)">Présent</span></div>
+    </div></div>
+  </div>
+
+  <div class="oct-sec-lbl">Structure</div>
+  <div class="oct-row">
+    <span class="oct-lbl">Atrophie${ttImg('atrophique','Atrophie maculaire','Perte irréversible de photorécepteurs et d\'EPR. Stade cicatriciel ou GA (Geographic Atrophy) dans la DMLA.')}</span>
+    <div class="oct-ctrl"><div class="oct-sub">
+      <div class="chips"><span class="chip" id="chip-atrophy-${e}" onclick="toggleBool('${e}','oct_atrophy',this)">Présente</span></div>
+    </div></div>
+  </div>
+  <div class="oct-row" id="neo-row-${e}">
+    <span class="oct-lbl">Néovx DMLA</span>
+    <div class="oct-ctrl">
+      <div class="chips" id="chips-neo-${e}">
+        ${['T1','T2','T3','RAP','Mixte','Cicatriciel'].map(t=>`<span class="chip" data-neo="${t.toLowerCase()}" onclick="selectNeo('${e}','${t.toLowerCase()}',this)">${t}</span>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div class="oct-row" id="dm-row-${e}">
+    <span class="oct-lbl">Lésions DM</span>
+    <div class="oct-ctrl"><div class="chips">
+      <span class="chip" id="chip-ma-${e}" onclick="toggleBool('${e}','oct_ma',this)">Microanévrismes</span>
+      <span class="chip" id="chip-he-${e}" onclick="toggleBool('${e}','oct_he',this)">Hard exsudats</span>
+    </div></div>
+  </div>
+</div>
+
+<div class="slbl">Métriques</div>
+<div class="metrics">
+  <div class="metric-box">
+    <div class="metric-lbl">AV</div>
+    <input class="metric-inp" id="av-${e}" type="text" placeholder="—" oninput="S['${e}'].av=this.value">
+  </div>
+  <div class="metric-box">
+    <div class="metric-lbl">CFT µm</div>
+    <input class="metric-inp" id="cft-${e}" type="number" placeholder="—" oninput="S['${e}'].cft=this.value">
+  </div>
+</div>
+
+<div class="slbl">Planning IVT</div>
+<div class="pb">
+  <div class="pr">
+    <span class="plbl">Date consultation</span>
+    <input type="date" class="inp" id="inj-date-${e}" style="width:auto;flex:1" oninput="S['${e}'].injDate=this.value;updateLastInjInfo('${e}');renderDates('${e}')">
+  </div>
+  <div class="pr">
+    <span class="inj-today-btn" onclick="setInjToday('${e}')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Aujourd'hui
+    </span>
+  </div>
+  <div id="last-inj-row-${e}" style="display:none">
+    <div class="pr" style="margin-top:6px">
+      <span class="plbl">Dernière IVT</span>
+      <input type="date" class="inp" id="last-inj-date-${e}" style="width:auto;flex:1" oninput="S['${e}'].lastInjDate=this.value;updateLastInjInfo('${e}');renderDates('${e}')">
+    </div>
+    <div id="last-inj-info-${e}" style="font-size:10px;color:var(--blue);font-weight:500;padding:2px 0;min-height:14px"></div>
+  </div>
+  <div id="adjust-row-${e}" style="display:none">
+    <div class="pr" style="margin-top:6px">
+      <span class="plbl">Ajustement</span>
+      <div class="pills" id="pills-adj-${e}">
+        ${[1,2,4].map(w=>`<span class="pill${w===2?' on':''}" data-adj="${w}" onclick="setAdjustment('${e}',${w},this)">${w}S</span>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div id="series-row-${e}" style="display:none">
+    <div class="pr" style="margin-top:6px">
+      <span class="plbl">IVT / série</span>
+      <div class="pills" id="pills-series-${e}">
+        ${[1,2,3,4,5].map(n=>`<span class="pill${n===3?' on':''}" data-n="${n}" onclick="setSeriesCount('${e}',${n},this)">${n}</span>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div class="pr" style="align-items:flex-start;margin-top:6px">
+    <span class="plbl" style="padding-top:2px">Jour IVT</span>
+    <div class="dow-row">
+      ${[1,2,3,4,5].map(d=>`<label class="dcb"><span class="tog-sw"><input type="checkbox" id="dow-${e}-${d}" onchange="toggleDOW('${e}',${d},this.checked)"><span class="sl"></span></span>${DAY_LABELS[d]}</label>`).join('')}
+    </div>
+  </div>
+  <div id="ctrl-row-${e}" style="display:none">
+    <div class="pr" style="margin-top:6px">
+      <span class="plbl">Contrôle</span>
+      <div class="pills" id="pills-ctrl-${e}">
+        <span class="pill on" data-ctrl="last" onclick="setCtrlMode('${e}','last',this)">Avant dernière</span>
+        <span class="pill" data-ctrl="all" onclick="setCtrlMode('${e}','all',this)">Avant toutes</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="dates-panel" id="dates-panel-${e}">
+  <div class="dp-hdr">Planning IVT</div>
+  <div class="dp-empty" id="dates-content-${e}">Sélectionner un protocole et une date d'injection</div>
+</div>`;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded',function(){
+  const today=new Date().toISOString().split('T')[0];
+  S.date=today;
+  document.getElementById('global-date').value=today;
+  document.getElementById('inner-od').innerHTML=buildEyeInner('od');
+  document.getElementById('inner-og').innerHTML=buildEyeInner('og');
+  buildMolPanel();
+  buildConsignes();
+  updatePDF();
+  document.addEventListener('click',closeAllDropdowns);
+  authInit();
+});
+
+// ============================================================
+// TAB NAV
+// ============================================================
+function showTab(tab){
+  ['med','ass'].forEach(t=>{
+    document.getElementById('pane-'+t).classList.toggle('on',t===tab);
+    document.getElementById('tab-'+t).classList.toggle('on',t===tab);
+  });
+  if(tab==='ass')updatePDF();
+}
+
+function setVisitType(t){
+  S.visitType=t;
+  ['premiere','suivi'].forEach(v=>{
+    document.getElementById('vt-'+v).classList.toggle('on',v===t);
+  });
+}
+
+// ============================================================
+// STATUS
+// ============================================================
+function toggleStatusDD(eye){
+  const dd=document.getElementById('st-dd-'+eye);
+  const isOpen=dd.classList.contains('open');
+  document.querySelectorAll('.st-dd').forEach(el=>el.classList.remove('open'));
+  if(!isOpen)dd.classList.add('open');
+}
+function setStatus(eye,status){
+  S[eye].status=status;
+  const cfg=STATUS_CFG[status];
+  const badge=document.getElementById('status-badge-'+eye);
+  badge.className='sp '+cfg.cls;
+  badge.querySelector('span').className='dot';
+  document.getElementById('status-label-'+eye).textContent=cfg.label;
+  document.getElementById('st-dd-'+eye).classList.remove('open');
+}
+function closeAllDropdowns(e){
+  if(!e.target.closest('.status-wrap'))document.querySelectorAll('.st-dd').forEach(el=>el.classList.remove('open'));
+}
+
+// ============================================================
+// PILL / CHIP SELECTION
+// ============================================================
+function selectPill(eye,field,val,el){
+  const container=el.parentElement;
+  const current=S[eye][field];
+  const newVal=current===val?'':val;
+  S[eye][field]=newVal;
+  container.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+  if(newVal)el.classList.add('on');
+}
+
+function selectProto(eye,key,el){
+  const current=S[eye].proto;
+  const newVal=current===key?'':key;
+  S[eye].proto=newVal;
+  el.parentElement.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+  if(newVal)el.classList.add('on');
+  updateProtoRows(eye,newVal);
+  renderDates(eye);
+}
+
+function setLoading(eye,val){
+  S[eye].loading=val;
+  const inp=document.getElementById('loading-'+eye);
+  if(inp)inp.value=val;
+  const presets=document.getElementById('loading-presets-'+eye);
+  if(presets)presets.querySelectorAll('.pill').forEach(p=>p.classList.toggle('on',p.textContent===val));
+  renderDates(eye);
+}
+
+function toggleBool(eye,field,el){
+  S[eye][field]=!S[eye][field];
+  el.classList.toggle('cg',S[eye][field]);
+}
+
+function selectDEP(eye,type,el){
+  const current=S[eye].oct_dep;
+  const newVal=current===type?'':type;
+  S[eye].oct_dep=newVal;
+  document.querySelectorAll('#chips-dep-'+eye+' .chip').forEach(c=>{
+    c.classList.remove('cb');
+    if(c.getAttribute('data-dep')===newVal)c.classList.add('cb');
+  });
+}
+
+function selectNeo(eye,type,el){
+  const current=S[eye].oct_neo;
+  const newVal=current===type?'':type;
+  S[eye].oct_neo=newVal;
+  document.querySelectorAll('#chips-neo-'+eye+' .chip').forEach(c=>{
+    c.classList.remove('cr');
+    if(c.getAttribute('data-neo')===newVal)c.classList.add('cr');
+  });
+}
+
+function toggleDOW(eye,day,checked){
+  const prefs=S[eye].dowPref;
+  if(checked&&!prefs.includes(day))prefs.push(day);
+  else if(!checked){const i=prefs.indexOf(day);if(i>-1)prefs.splice(i,1);}
+  renderDates(eye);
+}
+
+function setInjToday(eye){
+  const today=new Date().toISOString().split('T')[0];
+  S[eye].injDate=today;
+  const inp=document.getElementById('inj-date-'+eye);
+  if(inp)inp.value=today;
+  updateLastInjInfo(eye);
+  renderDates(eye);
+  showToast('Date consultation : aujourd\'hui');
+}
+
+// ============================================================
+// PLANNING HELPERS
+// ============================================================
+function updateProtoRows(eye,proto){
+  const show=(id,v)=>{const el=document.getElementById(id+'-'+eye);if(el)el.style.display=v?'':'none';};
+  show('loading-row',   proto==='charge');
+  show('last-inj-row',  proto==='te'||proto==='tripla'||proto==='fixe'||proto==='prn');
+  show('adjust-row',    proto==='te'||proto==='tripla');
+  show('series-row',    proto==='te'||proto==='fixe');
+  show('ctrl-row',      !!proto);
+}
+function setAdjustment(eye,w,el){
+  S[eye].adjustment=w;
+  document.querySelectorAll('#pills-adj-'+eye+' .pill').forEach(p=>p.classList.toggle('on',Number(p.getAttribute('data-adj'))===w));
+  renderDates(eye);
+}
+function setSeriesCount(eye,n,el){
+  S[eye].seriesCount=n;
+  document.querySelectorAll('#pills-series-'+eye+' .pill').forEach(p=>p.classList.toggle('on',Number(p.getAttribute('data-n'))===n));
+  renderDates(eye);
+}
+function setCtrlMode(eye,mode,el){
+  S[eye].ctrlMode=mode;
+  document.querySelectorAll('#pills-ctrl-'+eye+' .pill').forEach(p=>p.classList.toggle('on',p.getAttribute('data-ctrl')===mode));
+  renderDates(eye);
+}
+function updateLastInjInfo(eye){
+  const el=document.getElementById('last-inj-info-'+eye);
+  if(!el)return;
+  const today=parseDate(S[eye].injDate);
+  const last=parseDate(S[eye].lastInjDate);
+  if(!today||!last){el.textContent='';return;}
+  const days=Math.round((today.getTime()-last.getTime())/86400000);
+  el.textContent='Q'+Math.floor(days/7)+' ('+days+' j) depuis dernière IVT';
+}
+
+// ============================================================
+// RENDER DATES
+// ============================================================
+function renderDates(eye){
+  const dates=calcDates(eye);
+  const container=document.getElementById('dates-content-'+eye);
+  if(!container)return;
+  if(!dates.length){
+    container.innerHTML='<div class="dp-empty">Sélectionner un protocole et une date d\'injection</div>';
+    return;
+  }
+  const TYPE_COLOR={charge:'#60A5FA',te:'#A78BFA',tripla:'#34D399',prn:'#FCD34D',fixe:'#60A5FA',ctrl:'#FCD34D'};
+  const now=new Date();now.setHours(0,0,0,0);
+  let html='';
+  dates.forEach(d=>{
+    const past=d.date<now;
+    const color=TYPE_COLOR[d.type]||'#60A5FA';
+    html+=`<div class="dp-item" style="${past?'opacity:.45':''}">
+      <span class="dp-n" style="color:${color}">${d.n||'↳'}</span>
+      <span class="dp-main">${fmtDateLong(d.date)}</span>
+      ${d.note?`<span class="dp-win">${d.note}</span>`:''}
+      ${d.win?`<span class="dp-win" style="font-size:9px;opacity:.65">${d.win}</span>`:''}
+      ${d.ctrl?'<span class="dp-ctrl">+ Contrôle avant injection</span>':''}
+      ${d.type==='ctrl'?'<span class="dp-ctrl">↳ contrôle</span>':''}
+    </div>`;
+  });
+  container.innerHTML=html;
+}
+
+// ============================================================
+// COPY EYE
+// ============================================================
+function copyEye(from,to){
+  const src=S[from];
+  const dst=S[to];
+  Object.keys(src).forEach(k=>{
+    dst[k]=Array.isArray(src[k])?[...src[k]]:src[k];
+  });
+  renderEye(to);
+  showToast('Données copiées de '+from.toUpperCase()+' vers '+to.toUpperCase());
+}
+
+function renderEye(eye){
+  const s=S[eye];
+  // Rebuild inner HTML
+  document.getElementById('inner-'+eye).innerHTML=buildEyeInner(eye);
+  // Status badge
+  setStatus(eye,s.status);
+  // Patho pills
+  document.querySelectorAll('#pills-patho-'+eye+' .pill').forEach(el=>{
+    el.classList.toggle('on',el.getAttribute('data-val')===s.patho);
+  });
+  // Mol pills
+  document.querySelectorAll('#pills-mol-'+eye+' .pill').forEach(el=>{
+    el.classList.toggle('on',el.getAttribute('data-val')===s.mol);
+  });
+  // Proto pills
+  document.querySelectorAll('#pills-proto-'+eye+' .pill').forEach(el=>{
+    el.classList.toggle('on',el.getAttribute('data-key')===s.proto);
+  });
+  // Loading
+  const li=document.getElementById('loading-'+eye);
+  if(li)li.value=s.loading||'3.4.4';
+  const presets=document.getElementById('loading-presets-'+eye);
+  if(presets)presets.querySelectorAll('.pill').forEach(p=>p.classList.toggle('on',p.textContent===(s.loading||'3.4.4')));
+  // Bool chips
+  ['irf','srf','dsr','omc','atrophy','ma','he'].forEach(f=>{
+    const c=document.getElementById('chip-'+f+'-'+eye);
+    if(c)c.classList.toggle('cg',!!s['oct_'+f]);
+  });
+  // NL inputs
+  ['irf','srf','dsr','dep'].forEach(f=>{
+    const inp=document.getElementById(f+'-nl-'+eye);
+    if(inp)inp.value=s['oct_'+f+'_nl']||'';
+  });
+  // DEP
+  document.querySelectorAll('#chips-dep-'+eye+' .chip').forEach(c=>{
+    c.classList.toggle('cb',c.getAttribute('data-dep')===s.oct_dep);
+  });
+  // Neo
+  document.querySelectorAll('#chips-neo-'+eye+' .chip').forEach(c=>{
+    c.classList.toggle('cr',c.getAttribute('data-neo')===s.oct_neo);
+  });
+  // AV CFT
+  const av=document.getElementById('av-'+eye);if(av)av.value=s.av||'';
+  const cft=document.getElementById('cft-'+eye);if(cft)cft.value=s.cft||'';
+  // Inj date
+  const id=document.getElementById('inj-date-'+eye);if(id)id.value=s.injDate||'';
+  // Last inj date
+  const lid=document.getElementById('last-inj-date-'+eye);if(lid)lid.value=s.lastInjDate||'';
+  // DOW
+  [1,2,3,4,5].forEach(d=>{
+    const cb=document.getElementById('dow-'+eye+'-'+d);
+    if(cb)cb.checked=s.dowPref.includes(d);
+  });
+  // New planning pills
+  document.querySelectorAll('#pills-adj-'+eye+' .pill').forEach(p=>p.classList.toggle('on',Number(p.getAttribute('data-adj'))===(s.adjustment||2)));
+  document.querySelectorAll('#pills-series-'+eye+' .pill').forEach(p=>p.classList.toggle('on',Number(p.getAttribute('data-n'))===(s.seriesCount||3)));
+  document.querySelectorAll('#pills-ctrl-'+eye+' .pill').forEach(p=>p.classList.toggle('on',p.getAttribute('data-ctrl')===(s.ctrlMode||'last')));
+  updateProtoRows(eye,s.proto);
+  updateLastInjInfo(eye);
+  renderDates(eye);
+}
+
+// ============================================================
+// SYNTHÈSE
+// ============================================================
+function eyeSynthText(eye){
+  const s=S[eye];
+  const el=eye.toUpperCase();
+  if(!s.patho&&!s.mol&&!s.proto&&!s.oct_irf&&!s.oct_srf)return'';
+  const lines=[];
+  lines.push('── '+el+' ──────────────────────');
+  if(s.patho)lines.push('Pathologie : '+s.patho);
+  if(s.mol)lines.push('Molécule   : '+s.mol);
+  if(s.proto){
+    const pl=PROTOS.find(p=>p.k===s.proto);
+    let plabel=(pl?pl.l:s.proto);
+    if(s.loading&&s.proto==='charge')plabel+=' ('+s.loading+')';
+    lines.push('Protocole  : '+plabel);
+  }
+  lines.push('Statut     : '+(STATUS_CFG[s.status]||{label:s.status}).label);
+  // OCT
+  const oct=[];
+  if(s.oct_irf)oct.push('IRF'+(s.oct_irf_nl?' '+s.oct_irf_nl+'nl':''));
+  if(s.oct_srf)oct.push('SRF'+(s.oct_srf_nl?' '+s.oct_srf_nl+'nl':''));
+  if(s.oct_dsr)oct.push('DSR'+(s.oct_dsr_nl?' '+s.oct_dsr_nl+'nl':''));
+  if(s.oct_dep)oct.push('DEP '+s.oct_dep+(s.oct_dep_nl?' '+s.oct_dep_nl+'nl':''));
+  if(s.oct_omc)oct.push('OMC');
+  if(s.oct_atrophy)oct.push('Atrophie');
+  if(s.oct_ma)oct.push('Microanévrismes');
+  if(s.oct_he)oct.push('Hard exsudats');
+  if(s.oct_neo)oct.push('Néovx '+s.oct_neo.toUpperCase());
+  if(oct.length)lines.push('OCT        : '+oct.join(', '));
+  if(s.av)lines.push('AV         : '+s.av);
+  if(s.cft)lines.push('CFT        : '+s.cft+' µm');
+  const dates=calcDates(eye);
+  if(dates.length){
+    lines.push('');
+    lines.push('Planning IVT :');
+    dates.slice(0,8).forEach(d=>{
+      lines.push('  '+(d.n||'↳')+'. '+fmtDate(d.date)+(d.note?' ['+d.note+']':''));
+    });
+  }
+  return lines.join('\n');
+}
+
+function genAndShowSynth(){
+  const od=eyeSynthText('od');
+  const og=eyeSynthText('og');
+  let txt='';
+  const d=S.date?parseDate(S.date):new Date();
+  txt+='RetinaFlow — '+fmtDate(d);
+  if(S.prat)txt+=' — '+S.prat;
+  txt+=' — '+(S.visitType==='premiere'?'1ère consultation':'Suivi');
+  txt+='\n\n';
+  if(od)txt+=od+'\n\n';
+  if(og)txt+=og;
+  txt=txt.trim();
+  const box=document.getElementById('synth-box');
+  box.textContent=txt||'Aucune donnée à afficher.';
+  box.style.display='block';
+  sendAnalytics();
+}
+
+function copySynth(){
+  const txt=document.getElementById('synth-box').textContent;
+  if(!txt){genAndShowSynth();}
+  const t=document.getElementById('synth-box').textContent;
+  let ok=false;
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(()=>showCopyFb()).catch(()=>execCopy(t));
+      return;
+    }
+  }catch(e){}
+  execCopy(t);
+}
+function execCopy(txt){
+  const ta=document.createElement('textarea');
+  ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');showCopyFb();}catch(e){showToast('Copie manuelle : sélectionner le texte ci-dessous');}
+  document.body.removeChild(ta);
+}
+function showCopyFb(){
+  const fb=document.getElementById('copy-fb');
+  fb.style.display='inline';
+  setTimeout(()=>fb.style.display='none',2000);
+}
+
+// ============================================================
+// MOLÉCULE ASSISTANTE
+// ============================================================
+const ASS_MOLS=['Eylea 2mg','Eylea 8mg','Lucentis','Béovu','Vabysmo','Ozurdex','Iluvien','Biosimilaire','Autre'];
+
+function buildMolPanel(){
+  const panel=document.getElementById('ass-mol-panel');
+  if(!panel)return;
+  const opts='<option value="">— Choisir —</option>'+ASS_MOLS.map(m=>`<option value="${m}">${m}</option>`).join('');
+  panel.innerHTML=`
+    <div class="apanel-title">
+      <div class="a-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1A56DB" stroke-width="2.5"><path d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2h-4"/><rect x="9" y="1" width="6" height="4" rx="1"/></svg></div>
+      Médicament injecté
+    </div>
+    <div class="mol-eye-row">
+      <span class="mol-eye-lbl mol-eye-lbl-od">OD</span>
+      <select class="mol-select" id="ass-mol-sel-od" onchange="selectAssMol('od',this.value)">${opts}</select>
+    </div>
+    <div class="mol-eye-row" style="margin-top:6px">
+      <span class="mol-eye-lbl mol-eye-lbl-og">OG</span>
+      <select class="mol-select" id="ass-mol-sel-og" onchange="selectAssMol('og',this.value)">${opts}</select>
+    </div>
+    <button class="mol-sync-btn" onclick="syncMolBothEyes()">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+      Même médicament pour les deux yeux
+    </button>`;
+}
+
+function selectAssMol(eye,mol){
+  S.ass['mol'+eye.toUpperCase()]=mol;
+  updatePDF();
+}
+function syncMolBothEyes(){
+  const mol=S.ass.molOD;
+  S.ass.molOG=mol;
+  const selOG=document.getElementById('ass-mol-sel-og');
+  if(selOG)selOG.value=mol;
+  updatePDF();
+  showToast('Même médicament appliqué aux deux yeux');
+}
+
+// ============================================================
+// DATE LINES (ASSISTANTE)
+// ============================================================
+let _eyeModalCb=null;
+function showEyeModal(cb){_eyeModalCb=cb;document.getElementById('eye-modal').classList.add('open');}
+function resolveEyeModal(eye){document.getElementById('eye-modal').classList.remove('open');if(_eyeModalCb){_eyeModalCb(eye);_eyeModalCb=null;}}
+
+function addDateLine(){
+  showEyeModal(function(eye){
+    const id=++S._dlId;
+    S.ass.dateLines.push({id,date:'',time:'',eye,type:'IVT'});
+    renderDateLines();
+    updatePDF();
+  });
+}
+
+function removeDateLine(id){
+  S.ass.dateLines=S.ass.dateLines.filter(l=>l.id!==id);
+  renderDateLines();
+  updatePDF();
+}
+
+function changeLineEye(id){
+  showEyeModal(function(eye){
+    const l=S.ass.dateLines.find(x=>x.id===id);
+    if(l){l.eye=eye;renderDateLines();updatePDF();}
+  });
+}
+
+function renderDateLines(){
+  const c=document.getElementById('dl-container');
+  if(!c)return;
+  c.innerHTML=S.ass.dateLines.map((l,i)=>{
+    const eyeCls=l.eye==='od'?'dl-eye-od':l.eye==='og'?'dl-eye-og':'dl-eye-both';
+    const eyeLbl=l.eye==='od'?'OD':l.eye==='og'?'OG':'OD/OG';
+    const otherEye=l.eye==='od'?'OG':l.eye==='og'?'OD':null;
+    const copyBtn=otherEye?`<button class="dl-copy" onclick="copyDateLine(${l.id})">Copier → ${otherEye}</button>`:'';
+    return`<div class="dl-row">
+      <div class="dl-row-top">
+        <span class="dl-num">${i+1}</span>
+        <span class="${eyeCls}" onclick="changeLineEye(${l.id})">${eyeLbl}</span>
+        <input class="dl-inp" type="date" value="${l.date}" oninput="updateDateLine(${l.id},'date',this.value)">
+        <button class="dl-del" onclick="removeDateLine(${l.id})">×</button>
+      </div>
+      <div class="dl-row-bottom">
+        <input class="dl-time" type="time" value="${l.time||''}" placeholder="Heure" oninput="updateDateLine(${l.id},'time',this.value)">
+        <select class="dl-type" onchange="updateDateLine(${l.id},'type',this.value)">
+          ${['IVT','Contrôle','OCT','Angio-OCT'].map(t=>`<option${l.type===t?' selected':''}>${t}</option>`).join('')}
+        </select>
+        ${copyBtn}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function copyDateLine(id){
+  const src=S.ass.dateLines.find(x=>x.id===id);
+  if(!src)return;
+  const destEye=src.eye==='od'?'og':src.eye==='og'?'od':null;
+  if(!destEye)return;
+  const newId=++S._dlId;
+  S.ass.dateLines.push({id:newId,date:src.date,time:src.time||'',eye:destEye,type:src.type});
+  renderDateLines();
+  updatePDF();
+  showToast('Date copiée vers '+(destEye==='od'?'OD':'OG'));
+}
+
+function updateDateLine(id,field,val){
+  const l=S.ass.dateLines.find(x=>x.id===id);
+  if(l){l[field]=val;updatePDF();}
+}
+
+// ============================================================
+// CONSIGNES
+// ============================================================
+function buildConsignes(){
+  const c=document.getElementById('consignes-list');
+  if(!c)return;
+  c.innerHTML=CONSIGNES_STD.map((txt,i)=>`
+    <div class="consigne-item" id="consigne-item-${i}" onclick="toggleConsigne(${i})">
+      <div class="consigne-chk" id="consigne-chk-${i}"></div>
+      <span class="consigne-txt">${txt}</span>
+    </div>`).join('');
+}
+
+function toggleConsigne(idx){
+  const item=document.getElementById('consigne-item-'+idx);
+  const on=item.classList.toggle('on');
+  document.getElementById('consigne-chk-'+idx).innerHTML=on?'<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'';
+  if(on&&!S.ass.consignes.includes(idx))S.ass.consignes.push(idx);
+  else if(!on)S.ass.consignes=S.ass.consignes.filter(x=>x!==idx);
+  updatePDF();
+}
+
+// ============================================================
+// PDF PREVIEW & GÉNÉRATION
+// ============================================================
+function updatePDF(){
+  const c=document.getElementById('pdf-content');
+  if(!c)return;
+  const prat=S.ass.prat||S.prat||'';
+  const cabinet=S.ass.cabinet||'';
+  const phone=S.ass.phone||'';
+  const date=fmtDate(S.date?parseDate(S.date):new Date());
+
+  // Date lines — séparées par œil
+  const odLines=S.ass.dateLines.filter(l=>l.eye==='od');
+  const ogLines=S.ass.dateLines.filter(l=>l.eye==='og');
+  const bothLines=S.ass.dateLines.filter(l=>l.eye!=='od'&&l.eye!=='og');
+  function buildPdfEyeCol(lines,eyeLabel,mol,headerBg){
+    let h=`<div style="flex:1;min-width:0">
+      <div style="background:${headerBg};color:white;font-size:10px;font-weight:700;padding:4px 8px;border-radius:4px;margin-bottom:5px">${eyeLabel}</div>
+      ${mol?`<div style="font-size:10px;color:#1A56DB;font-style:italic;margin-bottom:5px;padding:2px 4px;background:#EFF6FF;border-radius:3px;display:inline-block">${mol}</div>`:''}`;
+    if(lines.length){
+      lines.forEach((l,i)=>{
+        const dStr=l.date?fmtDateLong(parseDate(l.date)):'—';
+        const tStr=l.time?` — ${l.time}`:'';
+        h+=`<div class="pdf-date-row"><span class="pdf-dn">${i+1}.</span><span class="pdf-dmain">${dStr}${tStr}</span><span class="pdf-dtype">${l.type}</span></div>`;
+      });
+    }else{
+      h+='<div style="font-size:10px;color:#94A3B8;font-style:italic">Aucune date renseignée</div>';
+    }
+    h+='</div>';
+    return h;
+  }
+  let datesHtml=`<div style="display:flex;gap:12px;align-items:flex-start">
+    ${buildPdfEyeCol(odLines,'OD — Œil droit',S.ass.molOD,'#0B1A2E')}
+    ${buildPdfEyeCol(ogLines,'OG — Œil gauche',S.ass.molOG,'#0891B2')}
+  </div>`;
+  if(bothLines.length){
+    datesHtml+='<div style="margin-top:8px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;margin-bottom:4px">Les deux yeux</div>';
+    bothLines.forEach((l,i)=>{
+      const dStr=l.date?fmtDateLong(parseDate(l.date)):'—';
+      const tStr=l.time?` — ${l.time}`:'';
+      datesHtml+=`<div class="pdf-date-row"><span class="pdf-dn">${i+1}.</span><span class="pdf-dmain">${dStr}${tStr}</span><span class="pdf-dtype">${l.type} — OD/OG</span></div>`;
+    });
+    datesHtml+='</div>';
+  }
+
+  // Consignes
+  let consHtml='';
+  S.ass.consignes.forEach(idx=>{
+    consHtml+=`<div class="pdf-consigne-row"><span class="pdf-bullet">•</span><span>${CONSIGNES_STD[idx]}</span></div>`;
+  });
+  if(S.ass.consigneCustom){
+    consHtml+=`<div class="pdf-consigne-row"><span class="pdf-bullet">•</span><span>${S.ass.consigneCustom}</span></div>`;
+  }
+
+  c.innerHTML=`
+<div class="pdf-hdr">
+  <div>
+    <div class="pdf-brand-nm">RetinaFlow</div>
+    <div class="pdf-brand-sub">Fiche de suivi IVT</div>
+  </div>
+  <div class="pdf-cabinet-info">
+    ${prat?`<div><strong>${prat}</strong></div>`:''}
+    ${cabinet?`<div>${cabinet}</div>`:''}
+    ${phone?`<div>${phone}</div>`:''}
+    <div>${date}</div>
+  </div>
+</div>
+<hr class="pdf-sep">
+<div class="pdf-sec-title">Dates d'injections prévues</div>
+${datesHtml}
+${consHtml||S.ass.consigneCustom?`<hr class="pdf-sep"><div class="pdf-sec-title">Consignes post-injection</div>${consHtml}`:''}
+${S.ass.patientNote?`<div class="pdf-warn">${S.ass.patientNote}</div>`:''}
+<div class="pdf-footer">Document généré par RetinaFlow — ${date}${prat?' — '+prat:''}</div>`;
+}
+
+// ============================================================
+// PRINT PDF (iframe, compatible Wix)
+// ============================================================
+function printPDF(){
+  const content=document.getElementById('pdf-content').innerHTML;
+  const frame=document.getElementById('print-frame');
+  const doc=frame.contentDocument||frame.contentWindow.document;
+  doc.open();
+  doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+body{font-family:'DM Sans',Arial,sans-serif;font-size:12px;color:#1e293b;padding:28px;margin:0}
+.pdf-hdr{display:flex;justify-content:space-between;margin-bottom:16px}
+.pdf-brand-nm{font-size:17px;font-weight:700;color:#0B1A2E}.pdf-brand-sub{font-size:9px;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em}
+.pdf-cabinet-info{text-align:right;font-size:11px;color:#64748B;line-height:1.7}
+.pdf-sep{border:none;border-top:2px solid #0B1A2E;margin:11px 0 13px}
+.pdf-sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#1A56DB;margin-bottom:9px}
+.pdf-date-row{font-size:11px;margin-bottom:3px;padding:3px 0;border-bottom:1px solid #E2E8F0;display:flex;gap:5px}
+.pdf-date-row:last-child{border-bottom:none}
+.pdf-dn{font-weight:700;color:#1A56DB;min-width:20px}.pdf-dmain{font-weight:500}.pdf-dtype{color:#D97706;font-style:italic;font-size:10px}
+.pdf-consigne-row{display:flex;gap:7px;margin-bottom:4px;font-size:11px}.pdf-bullet{color:#1A56DB;font-weight:700}
+.pdf-warn{background:#FFFBEB;border:1px solid #FCD34D;border-radius:4px;padding:6px 9px;font-size:10px;color:#92400E;margin-top:9px}
+.pdf-footer{margin-top:14px;font-size:9px;color:#CBD5E1;text-align:center;border-top:1px solid #E2E8F0;padding-top:8px}
+.pdf-eye-col{flex:1;min-width:0}
+.mol-eye-row{display:flex;align-items:flex-start;gap:8px}
+.mol-eye-lbl{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;color:white;flex-shrink:0;margin-top:2px;letter-spacing:.04em}
+.mol-eye-lbl-od{background:var(--navy)}
+.mol-eye-lbl-og{background:var(--teal)}
+.mol-select{flex:1;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--g900);background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-sm);padding:5px 8px;transition:.15s;cursor:pointer}
+.mol-select:focus{outline:none;border-color:var(--blue);background:var(--white)}
+.mol-sync-btn{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:var(--g500);background:var(--g100);border:1px solid var(--g200);border-radius:7px;padding:5px 10px;cursor:pointer;margin-top:8px;transition:.15s;width:100%;justify-content:center}
+.mol-sync-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+@media print{body{padding:20px}}
+</style></head><body>${content}</body></html>`);
+  doc.close();
+  setTimeout(()=>frame.contentWindow.print(),400);
+}
+
+// ============================================================
+// DOWNLOAD PDF (jsPDF)
+// ============================================================
+function downloadPDF(){
+  if(!window.jspdf){showToast('jsPDF non chargé — vérifier la connexion');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const prat=S.ass.prat||S.prat||'';
+  const cabinet=S.ass.cabinet||'';
+  const phone=S.ass.phone||'';
+  const date=fmtDate(S.date?parseDate(S.date):new Date());
+  let y=15;
+  // Header
+  doc.setFillColor(11,26,46);doc.rect(0,0,210,22,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(16);doc.setFont('helvetica','bold');
+  doc.text('RetinaFlow',15,13);
+  doc.setFontSize(7);doc.setFont('helvetica','normal');
+  doc.text('FICHE DE SUIVI IVT',15,18);
+  if(prat){doc.setFontSize(9);doc.text(prat,195,12,{align:'right'});}
+  if(cabinet){doc.setFontSize(8);doc.text(cabinet,195,17,{align:'right'});}
+  y=30;
+  doc.setTextColor(30,41,59);
+  {
+    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(26,86,219);
+    doc.text('DATES D\'INJECTIONS PRÉVUES',15,y);y+=5;
+    doc.setDrawColor(26,86,219);doc.line(15,y,195,y);y+=5;
+    // Colonnes OD (gauche) et OG (droite)
+    const colOD=S.ass.dateLines.filter(l=>l.eye==='od');
+    const colOG=S.ass.dateLines.filter(l=>l.eye==='og');
+    const colBoth=S.ass.dateLines.filter(l=>l.eye!=='od'&&l.eye!=='og');
+    const xOD=15,xOG=110,colW=90;
+    const yStart=y;
+    // En-tête OD
+    doc.setFillColor(11,26,46);doc.rect(xOD,y-3,colW-5,7,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont('helvetica','bold');
+    doc.text('OD — Œil droit',xOD+3,y+1);
+    // En-tête OG
+    doc.setFillColor(8,145,178);doc.rect(xOG,y-3,colW-5,7,'F');
+    doc.text('OG — Œil gauche',xOG+3,y+1);
+    y+=8;
+    // Molécules
+    if(S.ass.molOD){
+      doc.setTextColor(26,86,219);doc.setFontSize(8);doc.setFont('helvetica','italic');
+      doc.text(S.ass.molOD,xOD,y);
+    }
+    if(S.ass.molOG){
+      doc.setTextColor(26,86,219);doc.setFontSize(8);doc.setFont('helvetica','italic');
+      doc.text(S.ass.molOG,xOG,y);
+    }
+    if(S.ass.molOD||S.ass.molOG)y+=6;
+    // Dates des deux colonnes
+    const maxRows=Math.max(colOD.length,colOG.length);
+    doc.setFont('helvetica','normal');doc.setFontSize(9);
+    if(maxRows===0){
+      doc.setTextColor(148,163,184);doc.setFontSize(9);
+      doc.text('Aucune date renseignée',xOD,y);y+=6;
+    } else {
+      for(let i=0;i<maxRows;i++){
+        const lOD=colOD[i];const lOG=colOG[i];
+        if(lOD){
+          doc.setFont('helvetica','bold');doc.setTextColor(26,86,219);
+          doc.text(''+(i+1)+'.',xOD,y);
+          doc.setFont('helvetica','normal');doc.setTextColor(30,41,59);
+          const odDateStr=(lOD.date?fmtDateLong(parseDate(lOD.date)):'—')+(lOD.time?' — '+lOD.time:'');
+          doc.text(odDateStr,xOD+7,y);
+          doc.setTextColor(217,119,6);doc.setFontSize(8);
+          doc.text(lOD.type,xOD+7,y+4);
+          doc.setFontSize(9);
+        }
+        if(lOG){
+          doc.setFont('helvetica','bold');doc.setTextColor(26,86,219);
+          doc.text(''+(i+1)+'.',xOG,y);
+          doc.setFont('helvetica','normal');doc.setTextColor(30,41,59);
+          const ogDateStr=(lOG.date?fmtDateLong(parseDate(lOG.date)):'—')+(lOG.time?' — '+lOG.time:'');
+          doc.text(ogDateStr,xOG+7,y);
+          doc.setTextColor(217,119,6);doc.setFontSize(8);
+          doc.text(lOG.type,xOG+7,y+4);
+          doc.setFontSize(9);
+        }
+        y+=10;if(y>270){doc.addPage();y=15;}
+      }
+    }
+    // Séparateur vertical entre colonnes
+    doc.setDrawColor(226,232,240);doc.line(xOG-3,yStart-3,xOG-3,y-3);
+    // Lignes OD/OG
+    if(colBoth.length){
+      y+=2;
+      doc.setFontSize(7);doc.setFont('helvetica','bold');doc.setTextColor(148,163,184);
+      doc.text('LES DEUX YEUX',15,y);y+=4;
+      doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(30,41,59);
+      colBoth.forEach((l,i)=>{
+        const dStr=l.date?fmtDateLong(parseDate(l.date)):'—';
+        doc.setFont('helvetica','bold');doc.setTextColor(26,86,219);
+        doc.text(''+(i+1)+'.',15,y);
+        doc.setFont('helvetica','normal');doc.setTextColor(30,41,59);
+        doc.text(dStr,22,y);
+        doc.setTextColor(217,119,6);doc.setFontSize(8);
+        doc.text(l.type+' — OD/OG',100,y);
+        doc.setFontSize(9);doc.setTextColor(30,41,59);
+        y+=6;if(y>270){doc.addPage();y=15;}
+      });
+    }
+    y+=3;
+  }
+  const activeConsignes=S.ass.consignes.map(i=>CONSIGNES_STD[i]);
+  if(S.ass.consigneCustom)activeConsignes.push(S.ass.consigneCustom);
+  if(activeConsignes.length){
+    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(26,86,219);
+    doc.text('CONSIGNES POST-INJECTION',15,y);y+=5;
+    doc.setDrawColor(26,86,219);doc.line(15,y,195,y);y+=4;
+    doc.setTextColor(30,41,59);doc.setFont('helvetica','normal');doc.setFontSize(9);
+    activeConsignes.forEach(txt=>{
+      const wrapped=doc.splitTextToSize('• '+txt,175);
+      doc.text(wrapped,15,y);y+=wrapped.length*5+2;
+      if(y>270){doc.addPage();y=15;}
+    });
+  }
+  if(S.ass.patientNote){y+=3;
+    doc.setFillColor(255,251,235);doc.rect(15,y-3,180,12,'F');
+    doc.setTextColor(146,64,14);doc.setFontSize(9);
+    const wrapped=doc.splitTextToSize(S.ass.patientNote,170);
+    doc.text(wrapped,18,y+2);y+=14;
+  }
+  // Footer
+  doc.setFontSize(8);doc.setTextColor(203,213,225);
+  doc.text('RetinaFlow — '+date+(prat?' — '+prat:''),105,285,{align:'center'});
+  doc.save('RetinaFlow_IVT_'+date.replace(/\//g,'-')+'.pdf');
+  showToast('PDF téléchargé');
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+let _toastTimer=null;
+function showToast(msg,duration){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  if(_toastTimer)clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>{t.style.display='none';},duration||2500);
+}
+
+// ============================================================
+// SUPABASE
+// ============================================================
+const SUPA_URL='https://jfcxnhmowfjunytzhqvf.supabase.co';
+const SUPA_KEY='sb_publishable_7FezBxvFq8ZKdmNUrvkjyg_EcGeN_NE';
+let _supa=null;
+let _currentUser=null;
+let _currentProfile=null;
+
+function getSupabase(){
+  if(!_supa&&window.supabase){
+    _supa=window.supabase.createClient(SUPA_URL,SUPA_KEY);
+  }
+  return _supa;
+}
+
+// ============================================================
+// AUTH INIT
+// ============================================================
+async function authInit(){
+  const sb=getSupabase();
+  if(!sb)return;
+  const{data:{session}}=await sb.auth.getSession();
+  if(session){
+    _currentUser=session.user;
+    await loadProfile();
+    await loadUnavailabilities();
+    updateAuthUI(true);
+  }
+  sb.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN'&&session){
+      _currentUser=session.user;
+      await loadProfile();
+      await loadUnavailabilities();
+      updateAuthUI(true);
+    }else if(event==='SIGNED_OUT'){
+      _currentUser=null;_currentProfile=null;
+      S.unavailabilities=[];
+      updateAuthUI(false);
+      renderDates('od');renderDates('og');
+    }
+  });
+}
+
+function updateAuthUI(connected){
+  const btn=document.getElementById('auth-btn');
+  const lbl=document.getElementById('auth-btn-label');
+  if(connected&&_currentProfile){
+    const initials=(_currentProfile.prenom||'?')[0]+(_currentProfile.nom||'?')[0];
+    lbl.textContent=initials.toUpperCase();
+    btn.classList.add('connected');
+    // Remplir champ praticien si vide
+    if(!S.prat){
+      const fullname=[_currentProfile.prenom,_currentProfile.nom].filter(Boolean).join(' ');
+      S.prat=fullname;
+      const pi=document.getElementById('prat-input');
+      if(pi)pi.value=fullname;
+    }
+    // Remplir infos assistante
+    if(!S.ass.prat){
+      S.ass.prat=[_currentProfile.prenom,_currentProfile.nom].filter(Boolean).join(' ');
+      const ap=document.getElementById('ass-prat');
+      if(ap)ap.value=S.ass.prat;
+    }
+    if(!S.ass.cabinet&&_currentProfile.lieu_exercice){
+      S.ass.cabinet=_currentProfile.lieu_exercice;
+      const ac=document.getElementById('ass-cabinet');
+      if(ac)ac.value=S.ass.cabinet;
+    }
+    if(!S.ass.phone&&_currentProfile.telephone){
+      S.ass.phone=_currentProfile.telephone;
+      const aph=document.getElementById('ass-phone');
+      if(aph)aph.value=S.ass.phone;
+    }
+    updatePDF();
+  }else{
+    lbl.textContent='Connexion';
+    btn.classList.remove('connected');
+  }
+  // Mettre à jour vue panel
+  document.getElementById('auth-view-guest').style.display=connected?'none':'block';
+  document.getElementById('auth-view-user').style.display=connected?'block':'none';
+  if(connected&&_currentProfile){
+    const initials=(_currentProfile.prenom||'?')[0]+(_currentProfile.nom||'?')[0];
+    document.getElementById('user-avatar-big').textContent=initials.toUpperCase();
+    document.getElementById('user-fullname').textContent=[_currentProfile.prenom,_currentProfile.nom].filter(Boolean).join(' ')||_currentUser.email;
+    document.getElementById('user-meta').textContent=[_currentProfile.lieu_exercice,_currentProfile.telephone].filter(Boolean).join(' — ')||_currentUser.email;
+  }
+}
+
+// ============================================================
+// AUTH PANEL
+// ============================================================
+function showAuthPanel(){
+  document.getElementById('auth-overlay').classList.add('open');
+  document.getElementById('auth-panel').classList.add('open');
+}
+function hideAuthPanel(){
+  document.getElementById('auth-overlay').classList.remove('open');
+  document.getElementById('auth-panel').classList.remove('open');
+}
+function switchAuthTab(tab){
+  document.getElementById('auth-signin-form').style.display=tab==='signin'?'':'none';
+  document.getElementById('auth-signup-form').style.display=tab==='signup'?'':'none';
+  document.getElementById('tab-signin').classList.toggle('on',tab==='signin');
+  document.getElementById('tab-signup').classList.toggle('on',tab==='signup');
+}
+
+// ============================================================
+// SIGN IN
+// ============================================================
+async function doSignIn(){
+  const sb=getSupabase();if(!sb)return;
+  const email=document.getElementById('si-email').value.trim();
+  const pwd=document.getElementById('si-pwd').value;
+  const errEl=document.getElementById('si-error');
+  errEl.textContent='';
+  if(!email||!pwd){errEl.textContent='Email et mot de passe requis.';return;}
+  const{error}=await sb.auth.signInWithPassword({email,password:pwd});
+  if(error){errEl.textContent=error.message;return;}
+  hideAuthPanel();
+  showToast('Connexion réussie');
+}
+
+// ============================================================
+// SIGN UP
+// ============================================================
+async function doSignUp(){
+  const sb=getSupabase();if(!sb)return;
+  const email=document.getElementById('su-email').value.trim();
+  const pwd=document.getElementById('su-pwd').value;
+  const prenom=document.getElementById('su-prenom').value.trim();
+  const nom=document.getElementById('su-nom').value.trim();
+  const tel=document.getElementById('su-tel').value.trim();
+  const lieu=document.getElementById('su-lieu').value.trim();
+  const consent=document.getElementById('su-consent').checked;
+  const errEl=document.getElementById('su-error');
+  errEl.textContent='';
+  if(!email||!pwd){errEl.textContent='Email et mot de passe requis.';return;}
+  if(pwd.length<8){errEl.textContent='Mot de passe : 8 caractères minimum.';return;}
+  const{data,error}=await sb.auth.signUp({email,password:pwd});
+  if(error){errEl.textContent=error.message;return;}
+  if(data.user){
+    await sb.from('profiles').upsert({
+      id:data.user.id,nom,prenom,telephone:tel,mail:email,lieu_exercice:lieu
+    });
+    _currentProfile={nom,prenom,telephone:tel,mail:email,lieu_exercice:lieu};
+  }
+  hideAuthPanel();
+  showToast('Compte créé ! Vérifiez votre email pour confirmer.');
+}
+
+// ============================================================
+// SIGN OUT
+// ============================================================
+async function doSignOut(){
+  const sb=getSupabase();if(!sb)return;
+  await sb.auth.signOut();
+  hideAuthPanel();
+  showToast('Déconnecté');
+}
+
+// ============================================================
+// PROFILE
+// ============================================================
+async function loadProfile(){
+  const sb=getSupabase();if(!sb||!_currentUser)return;
+  const{data}=await sb.from('profiles').select('*').eq('id',_currentUser.id).single();
+  if(data)_currentProfile=data;
+}
+
+function showProfileEdit(){
+  const f=document.getElementById('profile-edit-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+  if(f.style.display==='block'&&_currentProfile){
+    document.getElementById('pe-prenom').value=_currentProfile.prenom||'';
+    document.getElementById('pe-nom').value=_currentProfile.nom||'';
+    document.getElementById('pe-tel').value=_currentProfile.telephone||'';
+    document.getElementById('pe-lieu').value=_currentProfile.lieu_exercice||'';
+  }
+}
+
+async function saveProfile(){
+  const sb=getSupabase();if(!sb||!_currentUser)return;
+  const prenom=document.getElementById('pe-prenom').value.trim();
+  const nom=document.getElementById('pe-nom').value.trim();
+  const tel=document.getElementById('pe-tel').value.trim();
+  const lieu=document.getElementById('pe-lieu').value.trim();
+  const{error}=await sb.from('profiles').upsert({id:_currentUser.id,prenom,nom,telephone:tel,lieu_exercice:lieu});
+  if(error){showToast('Erreur : '+error.message);return;}
+  _currentProfile={..._currentProfile,prenom,nom,telephone:tel,lieu_exercice:lieu};
+  updateAuthUI(true);
+  document.getElementById('profile-edit-form').style.display='none';
+  showToast('Profil mis à jour');
+}
+
+// ============================================================
+// AGENDA
+// ============================================================
+function showAgendaPanel(){
+  hideAuthPanel();
+  document.getElementById('agenda-panel').classList.add('open');
+  renderUnavailabilities();
+}
+function hideAgendaPanel(){
+  document.getElementById('agenda-panel').classList.remove('open');
+}
+
+async function loadUnavailabilities(){
+  const sb=getSupabase();if(!sb||!_currentUser)return;
+  const{data}=await sb.from('unavailabilities').select('*').eq('user_id',_currentUser.id).order('start_date');
+  if(data){S.unavailabilities=data;renderDates('od');renderDates('og');}
+}
+
+function renderUnavailabilities(){
+  const c=document.getElementById('unavail-list');if(!c)return;
+  const unavs=S.unavailabilities||[];
+  if(!unavs.length){c.innerHTML='<div style="font-size:11px;color:var(--g400);font-style:italic">Aucune indisponibilité enregistrée.</div>';return;}
+  c.innerHTML=unavs.map(u=>{
+    const s=fmtDate(new Date(u.start_date+'T12:00:00'));
+    const e=fmtDate(new Date(u.end_date+'T12:00:00'));
+    const rec=u.recurrent?'<span style="font-size:9px;color:var(--amber);font-weight:600;margin-left:4px">↻ annuel</span>':'';
+    return`<div class="unavail-row">
+      <div class="unavail-dot"></div>
+      <div class="unavail-info">
+        <div class="unavail-lbl">${u.label||'Sans titre'}${rec}</div>
+        <div class="unavail-dates">${s} → ${e}</div>
+      </div>
+      <button class="unavail-del" onclick="removeUnavailability('${u.id}')">×</button>
+    </div>`;
+  }).join('');
+}
+
+async function addUnavailability(){
+  const start=document.getElementById('unav-start').value;
+  const end=document.getElementById('unav-end').value;
+  const label=document.getElementById('unav-label').value.trim();
+  const recurrent=document.getElementById('unav-recurrent').checked;
+  if(!start||!end){showToast('Dates requises');return;}
+  if(end<start){showToast('La date de fin doit être après le début');return;}
+  const entry={label:label||'Indisponibilité',start_date:start,end_date:end,recurrent};
+  const sb=getSupabase();
+  if(sb&&_currentUser){
+    const{data,error}=await sb.from('unavailabilities').insert({...entry,user_id:_currentUser.id}).select().single();
+    if(!error&&data){S.unavailabilities.push(data);}
+  }else{
+    S.unavailabilities.push({id:'local-'+Date.now(),...entry});
+  }
+  document.getElementById('unav-start').value='';
+  document.getElementById('unav-end').value='';
+  document.getElementById('unav-label').value='';
+  document.getElementById('unav-recurrent').checked=false;
+  renderUnavailabilities();
+  renderDates('od');renderDates('og');
+  showToast('Indisponibilité ajoutée');
+}
+
+async function removeUnavailability(id){
+  const sb=getSupabase();
+  if(sb&&_currentUser&&!String(id).startsWith('local-')){
+    await sb.from('unavailabilities').delete().eq('id',id);
+  }
+  S.unavailabilities=S.unavailabilities.filter(u=>u.id!==id);
+  renderUnavailabilities();
+  renderDates('od');renderDates('og');
+}
+
+// ============================================================
+// ANALYTICS (silencieux, envoyé à chaque "Générer")
+// ============================================================
+async function sendAnalytics(){
+  const sb=getSupabase();
+  if(!sb||!_currentUser)return;
+  const profile=_currentProfile;
+  const sessionDate=S.date||new Date().toISOString().split('T')[0];
+  // Créer une session
+  const{data:sess}=await sb.from('sessions').insert({
+    user_id:_currentUser.id,
+    session_date:sessionDate,
+    visit_type:S.visitType
+  }).select().single();
+  if(!sess)return;
+  // Envoyer une ligne par œil renseigné
+  const rows=[];
+  ['od','og'].forEach(eye=>{
+    const s=S[eye];
+    if(!s.patho&&!s.mol&&!s.proto)return;
+    rows.push({
+      user_id:_currentUser.id,
+      session_id:sess.id,
+      eye,
+      pathologie:s.patho||null,
+      molecule:s.mol||null,
+      protocole:s.proto||null,
+      loading_format:s.proto==='charge'?s.loading:null,
+      statut:s.status||null,
+      oct_irf:s.oct_irf||false,
+      oct_srf:s.oct_srf||false,
+      oct_dsr:s.oct_dsr||false,
+      oct_dep:s.oct_dep||null,
+      oct_omc:s.oct_omc||false,
+      oct_atrophy:s.oct_atrophy||false,
+      av:s.av||null,
+      cft:s.cft?parseInt(s.cft):null,
+      lieu_exercice:profile?.lieu_exercice||null
+    });
+  });
+  if(rows.length)await sb.from('analytics').insert(rows);
+}
+</script>
+</body>
+</html>
