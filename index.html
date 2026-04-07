@@ -331,7 +331,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--g50);color:var(--g900);mi
 </div>
 
 <!-- ==================== AGENDA PANEL ==================== -->
-<div class="rf-panel rf-panel-wide" id="agenda-panel" style="display:none">
+<div class="rf-overlay" id="agenda-overlay" onclick="hideAgendaPanel()"></div>
+<div class="rf-panel rf-panel-wide" id="agenda-panel">
   <div class="rf-panel-hdr">
     <span>Agenda — Indisponibilités</span>
     <button class="rf-panel-close" onclick="hideAgendaPanel()">×</button>
@@ -1874,10 +1875,12 @@ async function saveProfile(){
 // ============================================================
 function showAgendaPanel(){
   hideAuthPanel();
+  document.getElementById('agenda-overlay').classList.add('open');
   document.getElementById('agenda-panel').classList.add('open');
   renderUnavailabilities();
 }
 function hideAgendaPanel(){
+  document.getElementById('agenda-overlay').classList.remove('open');
   document.getElementById('agenda-panel').classList.remove('open');
 }
 
