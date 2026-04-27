@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RetinaFlow — Système de design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --shell-bg: #ECEFF2;
+      --shell-ink: #0B1B2B;
+      --shell-rule: #D6DCE2;
+      --shell-muted: #6B7785;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--shell-bg); }
+    body {
+      font-family: 'Inter', 'Helvetica Neue', sans-serif;
+      color: var(--shell-ink);
+      -webkit-font-smoothing: antialiased;
+    }
+    .shell-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(236, 239, 242, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--shell-rule);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .shell-title {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+    .shell-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--shell-muted);
+    }
+    .shell-spacer { flex: 1; }
+    .shell-jump {
+      display: flex;
+      gap: 4px;
+      background: white;
+      border: 1px solid var(--shell-rule);
+      border-radius: 999px;
+      padding: 4px;
+    }
+    .shell-jump button {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      border: none;
+      background: transparent;
+      color: var(--shell-muted);
+      cursor: pointer;
+      border-radius: 999px;
+      transition: all 120ms ease;
+    }
+    .shell-jump button:hover { color: var(--shell-ink); }
+    .shell-jump button.active { background: var(--shell-ink); color: white; }
+    .direction-frame {
+      margin: 32px auto;
+      max-width: 1480px;
+      box-shadow: 0 1px 0 rgba(11,27,43,0.04), 0 24px 48px -32px rgba(11,27,43,0.18);
+      overflow: hidden;
+      border: 1px solid var(--shell-rule);
+    }
+    .intro {
+      padding: 96px 32px 48px;
+      max-width: 1480px;
+      margin: 0 auto;
+    }
+    .intro-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--shell-muted);
+    }
+    .intro h1 {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 88px;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin: 24px 0 0;
+      max-width: 1100px;
+    }
+    .intro p {
+      font-size: 20px;
+      line-height: 1.55;
+      color: #3C4A5A;
+      margin-top: 28px;
+      max-width: 720px;
+    }
+    .intro-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid var(--shell-rule);
+    }
+    .intro-card {
+      background: white;
+      border: 1px solid var(--shell-rule);
+      padding: 24px;
+    }
+    .intro-card .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: var(--shell-muted);
+    }
+    .intro-card .title {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      margin-top: 16px;
+    }
+    .intro-card .desc {
+      font-size: 14px;
+      line-height: 1.55;
+      color: #3C4A5A;
+      margin-top: 8px;
+    }
+    .footer {
+      padding: 48px 32px 96px;
+      max-width: 1480px;
+      margin: 0 auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--shell-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+    button { font: inherit; }
+  </style>
+</head>
+<body>
+  <header class="shell-header">
+    <div class="shell-title">RetinaFlow · Système de design</div>
+    <div class="shell-meta">v0.2 · Précision clinique</div>
+    <div class="shell-spacer"></div>
+    <div class="shell-jump" id="jump">
+      <button data-target="dir-a" class="active">Précision clinique</button>
+    </div>
+  </header>
+
+  <div class="intro">
+    <div class="intro-eyebrow">RetinaFlow / Système de design / Revue interne</div>
+    <h1>Précision clinique — langage visuel pour un logiciel ophtalmologique.</h1>
+    <p>RetinaFlow est un logiciel destiné aux ophtalmologistes. Cette direction propose un langage visuel complet — logo, palette de couleurs, typographie, icônes, composants — institutionnel, dense, géométrique. Pensé pour les cliniciens qui lisent un dossier avant de lire une interface. Utilisez le panneau Tweaks pour modifier en direct la couleur primaire.</p>
+  </div>
+
+  <div id="dir-a" class="direction-frame"></div>
+
+  <div class="footer">
+    <span>RetinaFlow · 2026</span>
+    <span>Commentaires bienvenus — activez Tweaks pour changer la couleur primaire</span>
+  </div>
+
+  <div id="tweaks-root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="shared.jsx"></script>
+  <script type="text/babel" src="direction-a.jsx"></script>
+
+  <script type="text/babel">
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "primaryA": "#0B5FA5"
+    }/*EDITMODE-END*/;
+
+    const App = () => {
+      const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+      return (
+        <>
+          <DirectionA primary={t.primaryA} />
+          <TweaksPanel title="Tweaks">
+            <TweakSection title="Précision clinique">
+              <TweakColor label="Primary" value={t.primaryA} onChange={(v) => setTweak('primaryA', v)} />
+            </TweakSection>
+          </TweaksPanel>
+        </>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('dir-a')).render(<App />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+/* RetinaFlow — Design tokens
+ * Direction "Précision clinique"
+ * Importer ce fichier au niveau racine de l'app (ex. dans index.css ou globals.css)
+ */
+
+:root {
+  /* ---- Color · Ink (neutrals) ------------------------------------------- */
+  --rf-ink-900: #0B1B2B;
+  --rf-ink-700: #1F3142;
+  --rf-ink-500: #3C4A5A;
+  --rf-ink-300: #7B8794;
+  --rf-ink-100: #E2E7EC;
+
+  --rf-surface: #FFFFFF;
+  --rf-bg:      #FBFCFD;
+  --rf-rule:    #E2E7EC;
+
+  /* ---- Color · Primary -------------------------------------------------- */
+  /* Adjust --rf-primary at the app shell level to retheme; the scale rebuilds. */
+  --rf-primary:        #0B5FA5;
+  --rf-primary-ink:    #FFFFFF;
+  --rf-primary-900:    color-mix(in oklch, var(--rf-primary) 70%, #001220);
+  --rf-primary-700:    color-mix(in oklch, var(--rf-primary) 88%, #001220);
+  --rf-primary-500:    var(--rf-primary);
+  --rf-primary-300:    color-mix(in oklch, var(--rf-primary) 45%, white);
+  --rf-primary-100:    color-mix(in oklch, var(--rf-primary) 14%, white);
+  --rf-primary-tint:   color-mix(in oklch, var(--rf-primary) 12%, white);
+
+  /* ---- Color · Semantic ------------------------------------------------- */
+  --rf-success:  #1E7F5A;
+  --rf-warning:  #B26A00;
+  --rf-critical: #A8202F;
+  --rf-info:     #1F4B8A;
+
+  --rf-success-bg:  color-mix(in oklch, #1E7F5A 6%, white);
+  --rf-warning-bg:  color-mix(in oklch, #B26A00 6%, white);
+  --rf-critical-bg: color-mix(in oklch, #A8202F 6%, white);
+  --rf-info-bg:     color-mix(in oklch, #1F4B8A 6%, white);
+
+  /* ---- Type · Families -------------------------------------------------- */
+  --rf-font-display: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --rf-font-body:    'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --rf-font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ---- Type · Scale ----------------------------------------------------- */
+  --rf-fs-display-xl: 88px; --rf-lh-display-xl: 1.0;  --rf-tr-display-xl: -0.03em;
+  --rf-fs-display-l:  56px; --rf-lh-display-l:  1.05; --rf-tr-display-l:  -0.02em;
+  --rf-fs-title-m:    28px; --rf-lh-title-m:    1.2;  --rf-tr-title-m:    -0.01em;
+  --rf-fs-body-l:     18px; --rf-lh-body-l:     1.55; --rf-tr-body-l:     0;
+  --rf-fs-body-m:     15px; --rf-lh-body-m:     1.55; --rf-tr-body-m:     0;
+  --rf-fs-caption:    12px; --rf-lh-caption:    1.4;  --rf-tr-caption:    0.06em;
+  --rf-fs-mono-data:  14px; --rf-lh-mono-data:  1.4;  --rf-tr-mono-data:  0;
+
+  /* ---- Radius ----------------------------------------------------------- */
+  --rf-radius-control: 2px;
+  --rf-radius-surface: 0;
+
+  /* ---- Borders ---------------------------------------------------------- */
+  --rf-border:        1px solid var(--rf-rule);
+  --rf-border-strong: 1px solid var(--rf-ink-900);
+
+  /* ---- Spacing (no strict scale — clinical density) --------------------- */
+  --rf-pad-x: 64px;
+  --rf-card-pad-compact: 24px;
+  --rf-card-pad:         32px;
+  --rf-card-pad-hero:    48px;
+
+  /* ---- Motion ----------------------------------------------------------- */
+  --rf-duration-fast: 120ms;
+  --rf-easing:        ease;
+
+  /* ---- Shadow ----------------------------------------------------------- */
+  /* Intentionally none. RetinaFlow surfaces are flat. */
+}
+
+/* Reset minimal pour les composants RetinaFlow (à appliquer au scope app si besoin) */
+@media (prefers-reduced-motion: reduce) {
+  :root { --rf-duration-fast: 0ms; }
+}
