@@ -15,7 +15,7 @@
   --g50:#FBFCFD;--g100:#F1F4F7;--g200:#E2E7EC;--g400:#7B8794;--g500:#3C4A5A;--g700:#1F3142;--g900:#0B1B2B;
   --white:#fff;
   --sh-sm:none;--sh:none;--sh-lg:none;
-  --r-sm:2px;--r-lg:2px;
+  --r-sm:8px;--r-lg:12px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter Tight',sans-serif;background:var(--g50);color:var(--g900);min-height:100vh}
@@ -46,7 +46,7 @@ body{font-family:'Inter Tight',sans-serif;background:var(--g50);color:var(--g900
 .eye-pill-od{font-size:12px;font-weight:600;color:var(--white);background:var(--navy);padding:4px 11px;border-radius:2px;letter-spacing:.03em}
 .eye-pill-og{font-size:12px;font-weight:600;color:var(--white);background:var(--teal);padding:4px 11px;border-radius:2px;letter-spacing:.03em}
 .status-wrap{margin-left:auto;position:relative}
-.sp{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:4px 9px;border-radius:2px;cursor:pointer;border:1px solid transparent;user-select:none}
+.sp{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:4px 9px;border-radius:20px;cursor:pointer;border:1px solid transparent;user-select:none}
 .sp-sec{background:var(--green-light);color:var(--green);border-color:#86EFAC}
 .sp-sta{background:var(--amber-light);color:var(--amber);border-color:#FCD34D}
 .sp-exs{background:var(--red-light);color:var(--red);border-color:#FCA5A5}
@@ -60,7 +60,7 @@ body{font-family:'Inter Tight',sans-serif;background:var(--g50);color:var(--g900
 .slbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--g400);margin:12px 0 7px;display:flex;align-items:center;gap:7px}
 .slbl::after{content:'';flex:1;height:1px;background:var(--g100)}
 .pills{display:flex;gap:4px;flex-wrap:wrap}
-.pill{font-size:11px;font-weight:500;padding:3px 9px;border-radius:2px;border:1px solid var(--g200);cursor:pointer;color:var(--g500);background:var(--white);transition:background 120ms ease;user-select:none}
+.pill{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;border:1px solid var(--g200);cursor:pointer;color:var(--g500);background:var(--white);transition:background 120ms ease;user-select:none}
 .pill.on{background:var(--blue);border-color:var(--blue);color:var(--white)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .fld{display:flex;flex-direction:column;gap:3px}
@@ -90,7 +90,7 @@ body{font-family:'Inter Tight',sans-serif;background:var(--g50);color:var(--g900
 .oct-ctrl{display:flex;flex-direction:column;gap:5px;flex:1}
 .oct-sub{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
 .chips{display:flex;gap:3px;flex-wrap:wrap}
-.chip{font-size:11px;font-weight:500;padding:3px 8px;border-radius:2px;border:1px solid rgba(255,255,255,.14);cursor:pointer;color:rgba(255,255,255,.5);background:rgba(255,255,255,.04);transition:background 120ms ease;user-select:none;white-space:nowrap}
+.chip{font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;border:1px solid rgba(255,255,255,.14);cursor:pointer;color:rgba(255,255,255,.5);background:rgba(255,255,255,.04);transition:background 120ms ease;user-select:none;white-space:nowrap}
 .chip:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.8)}
 .chip.cg{background:rgba(22,163,74,.22);border-color:rgba(134,239,172,.45);color:#86EFAC}
 .chip.cw{background:rgba(217,119,6,.22);border-color:rgba(252,211,77,.45);color:#FCD34D}
@@ -158,9 +158,9 @@ body{font-family:'Inter Tight',sans-serif;background:var(--g50);color:var(--g900
 .consigne-custom{width:100%;font-size:11px;font-family:'Inter Tight',sans-serif;color:var(--g900);background:var(--g50);border:1px solid var(--g200);border-radius:2px;padding:6px 10px;resize:vertical;min-height:56px;margin-top:7px}
 .consigne-custom:focus{outline:none;border-color:var(--blue)}
 .pdf-actions{display:flex;gap:8px;margin:0 0 12px}
-.btn-print{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:8px 14px;border-radius:2px;border:1px solid var(--navy);background:var(--navy);color:white;cursor:pointer;transition:background 120ms ease}
+.btn-print{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:8px 14px;border-radius:8px;border:1px solid var(--navy);background:var(--navy);color:white;cursor:pointer;transition:background 120ms ease}
 .btn-print:hover{background:var(--g700)}
-.btn-dl{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:8px 14px;border-radius:2px;border:none;background:var(--blue);color:white;cursor:pointer;transition:background 120ms ease}
+.btn-dl{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:8px 14px;border-radius:8px;border:none;background:var(--blue);color:white;cursor:pointer;transition:background 120ms ease}
 .btn-dl:hover{background:#0A538F}
 .preview-frame{background:white;border:1px solid var(--g200);border-radius:var(--r-sm);overflow:hidden;box-shadow:var(--sh-sm)}
 #pdf-content{padding:24px 28px;font-family:'Inter Tight',Arial,sans-serif;font-size:12px;color:#1e293b;min-height:400px}
@@ -189,7 +189,7 @@ body{font-family:'Inter Tight',sans-serif;background:var(--g50);color:var(--g900
 .eye-modal-od:hover{background:var(--g700)}.eye-modal-og:hover{background:#1A3F7A}
 #toast{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:10px 20px;border-radius:2px;font-size:13px;z-index:10000;font-family:'Inter Tight',sans-serif;pointer-events:none}
 /* ---- AUTH BUTTON ---- */
-.auth-btn{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;padding:5px 11px;border-radius:2px;border:1px solid var(--g200);background:var(--white);color:var(--g700);cursor:pointer;transition:background 120ms ease;white-space:nowrap}
+.auth-btn{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;padding:5px 11px;border-radius:20px;border:1px solid var(--g200);background:var(--white);color:var(--g700);cursor:pointer;transition:background 120ms ease;white-space:nowrap}
 .auth-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
 .auth-btn.connected{border-color:#86EFAC;background:var(--green-light);color:var(--green)}
 /* ---- PANEL / OVERLAY ---- */
@@ -207,7 +207,7 @@ body{font-family:'Inter Tight',sans-serif;background:var(--g50);color:var(--g900
 .rf-tab.on{background:var(--white);color:var(--blue);box-shadow:var(--sh-sm)}
 .rf-2col{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0}
 .auth-error{font-size:11px;color:var(--red);min-height:16px;margin:4px 0}
-.auth-submit-btn{width:100%;padding:9px;border-radius:2px;border:none;background:var(--navy);color:white;font-size:13px;font-weight:500;cursor:pointer;margin-top:6px;font-family:'Inter Tight',sans-serif;transition:background 120ms ease}
+.auth-submit-btn{width:100%;padding:9px;border-radius:8px;border:none;background:var(--navy);color:white;font-size:13px;font-weight:500;cursor:pointer;margin-top:6px;font-family:'Inter Tight',sans-serif;transition:background 120ms ease}
 .auth-submit-btn:hover{background:var(--g700)}
 .auth-consent{background:var(--g50);border:1px solid var(--g200);border-radius:2px;padding:8px 10px;margin:6px 0}
 .rf-user-avatar{width:52px;height:52px;border-radius:50%;background:var(--navy);color:white;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
@@ -436,6 +436,21 @@ body{font-family:'Inter Tight',sans-serif;background:var(--g50);color:var(--g900
   </div>
 </div>
 
+<!-- ==================== NEW PASSWORD MODAL ==================== -->
+<div class="eye-modal-overlay" id="new-pwd-overlay" style="z-index:9500">
+  <div class="eye-modal" style="min-width:320px;text-align:left">
+    <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px">Nouveau mot de passe</div>
+    <div style="font-size:11px;color:var(--g400);margin-bottom:14px">Choisissez votre nouveau mot de passe.</div>
+    <label class="cf-lbl">Nouveau mot de passe</label>
+    <input class="cf-inp" id="new-pwd-input" type="password" placeholder="8 caractères minimum">
+    <label class="cf-lbl" style="margin-top:4px">Confirmer</label>
+    <input class="cf-inp" id="new-pwd-confirm" type="password" placeholder="Répétez le mot de passe">
+    <div class="auth-error" id="new-pwd-error"></div>
+    <div id="new-pwd-success" style="display:none;font-size:11px;color:var(--green);font-weight:500;margin:4px 0;padding:7px 9px;background:var(--green-light);border-radius:7px;border:1px solid #86EFAC">✓ Mot de passe mis à jour ! Vous pouvez vous connecter.</div>
+    <button class="auth-submit-btn" onclick="doUpdatePassword()">Enregistrer</button>
+  </div>
+</div>
+
 <!-- Eye modal -->
 <div class="eye-modal-overlay" id="eye-modal">
   <div class="eye-modal">
@@ -443,6 +458,7 @@ body{font-family:'Inter Tight',sans-serif;background:var(--g50);color:var(--g900
     <div class="eye-modal-btns">
       <button class="eye-modal-od" onclick="resolveEyeModal('od')">OD</button>
       <button class="eye-modal-og" onclick="resolveEyeModal('og')">OG</button>
+      <button style="padding:8px 20px;border-radius:8px;border:none;background:var(--g500);color:white;font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter Tight',sans-serif" onclick="resolveEyeModal('both')">ODG</button>
     </div>
   </div>
 </div>
@@ -473,10 +489,6 @@ body{font-family:'Inter Tight',sans-serif;background:var(--g50);color:var(--g900
     </button>
   </nav>
   <div class="hdr-right">
-    <div class="visit-tog">
-      <button class="vt on" id="vt-premiere" onclick="setVisitType('premiere')">1ère consultation</button>
-      <button class="vt" id="vt-suivi" onclick="setVisitType('suivi')">Suivi</button>
-    </div>
     <div class="date-chip">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       <input type="date" id="global-date" oninput="S.date=this.value">
@@ -555,9 +567,17 @@ body{font-family:'Inter Tight',sans-serif;background:var(--g50);color:var(--g900
   <div class="synth-card">
     <div style="display:flex;align-items:center;justify-content:space-between">
       <span style="font-size:13px;font-weight:600;color:var(--g900)">Synthèse clinique</span>
-      <div style="display:flex;align-items:center;gap:7px">
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
         <button class="cbtn" onclick="genAndShowSynth()">Générer</button>
+        <button class="cbtn" style="color:var(--teal);border-color:var(--teal)" onclick="genPlanningSecretaire()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+          Planning secrétaire
+        </button>
         <button class="cbtn" onclick="copySynth()">Copier</button>
+        <button class="cbtn" style="color:var(--g400)" title="Nouvelle session" onclick="resetSession()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Rafraîchir
+        </button>
         <span class="copy-fb" id="copy-fb">Copié ✓</span>
       </div>
     </div>
@@ -581,6 +601,12 @@ body{font-family:'Inter Tight',sans-serif;background:var(--g50);color:var(--g900
         <input class="cf-inp" id="ass-cabinet" type="text" placeholder="Cabinet d'ophtalmologie …" oninput="S.ass.cabinet=this.value;updatePDF()">
         <label class="cf-lbl">Téléphone</label>
         <input class="cf-inp" id="ass-phone" type="tel" placeholder="01 00 00 00 00" oninput="S.ass.phone=this.value;updatePDF()">
+        <label class="cf-lbl">Adresse</label>
+        <input class="cf-inp" id="ass-adresse" type="text" placeholder="12 rue de la Paix, 75001 Paris" oninput="S.ass.adresse=this.value;updatePDF()">
+        <label class="cf-lbl">Email cabinet</label>
+        <input class="cf-inp" id="ass-email" type="email" placeholder="contact@cabinet.fr" oninput="S.ass.email=this.value;updatePDF()">
+        <label class="cf-lbl">Site web</label>
+        <input class="cf-inp" id="ass-web" type="text" placeholder="www.cabinet-ophtalmologie.fr" oninput="S.ass.web=this.value;updatePDF()">
       </div>
 
       <!-- Médicament injecté -->
@@ -701,7 +727,7 @@ function mkEye(){
 const S={
   date:'',prat:'',visitType:'premiere',
   od:mkEye(),og:mkEye(),
-  ass:{prat:'',cabinet:'',phone:'',molOD:'',molOG:'',dateLines:[],consignes:[],consigneCustom:'',patientNote:''},
+  ass:{prat:'',cabinet:'',phone:'',adresse:'',email:'',web:'',molOD:'',molOG:'',dateLines:[],consignes:[],consigneCustom:'',patientNote:''},
   _dlId:0,
   unavailabilities:[] // {id,label,start_date,end_date,recurrent}
 };
@@ -1050,6 +1076,7 @@ document.addEventListener('DOMContentLoaded',function(){
   updatePDF();
   document.addEventListener('click',closeAllDropdowns);
   authInit();
+  checkRecoveryToken();
 });
 
 // ============================================================
@@ -1061,6 +1088,72 @@ function showTab(tab){
     document.getElementById('tab-'+t).classList.toggle('on',t===tab);
   });
   if(tab==='ass')updatePDF();
+}
+
+// ============================================================
+// RESET SESSION
+// ============================================================
+function resetSession(){
+  if(!confirm('Réinitialiser la session ? Toutes les données saisies seront effacées.'))return;
+  S.od=mkEye();S.og=mkEye();
+  S.prat='';S.date=new Date().toISOString().split('T')[0];S.visitType='premiere';
+  S.ass={prat:'',cabinet:'',phone:'',adresse:'',email:'',web:'',molOD:'',molOG:'',dateLines:[],consignes:[],consigneCustom:'',patientNote:''};
+  S._dlId=0;
+  document.getElementById('global-date').value=S.date;
+  document.getElementById('prat-input').value='';
+  document.getElementById('inner-od').innerHTML=buildEyeInner('od');
+  document.getElementById('inner-og').innerHTML=buildEyeInner('og');
+  setStatus('od','sec');setStatus('og','sec');
+  const synth=document.getElementById('synth-box');
+  if(synth){synth.textContent='';synth.style.display='none';}
+  buildMolPanel();buildConsignes();
+  renderDateLines();updatePDF();
+  const banner=document.getElementById('visit-banner');
+  if(banner){banner.classList.add('needs-confirm');}
+  const badge=document.getElementById('visit-confirmed-badge');
+  if(badge)badge.style.display='none';
+  const vtbP=document.getElementById('vtb-premiere');
+  if(vtbP)vtbP.classList.add('on');
+  const vtbS=document.getElementById('vtb-suivi');
+  if(vtbS)vtbS.classList.remove('on');
+  showToast('Session réinitialisée');
+}
+
+// ============================================================
+// PLANNING SECRÉTAIRE
+// ============================================================
+function genPlanningSecretaire(){
+  const allDates=[];
+  ['od','og'].forEach(eye=>{
+    const dates=calcDates(eye);
+    dates.forEach(d=>{
+      allDates.push({date:d.date,eye:eye.toUpperCase(),type:d.type,ctrl:d.ctrl,n:d.n});
+    });
+  });
+  // Fusionner avec les dates manuelles de l'assistante
+  S.ass.dateLines.forEach(l=>{
+    if(l.date){
+      allDates.push({date:parseDate(l.date),eye:l.eye==='od'?'OD':l.eye==='og'?'OG':l.eye==='both'?'ODG':'OD/OG',type:l.type,ctrl:false,n:'•',manual:true});
+    }
+  });
+  allDates.sort((a,b)=>a.date-b.date);
+  if(!allDates.length){showToast('Aucune date à afficher — sélectionnez un protocole ou ajoutez des dates');return;}
+  const d=S.date?parseDate(S.date):new Date();
+  let txt='PLANNING SECRÉTAIRE — RetinaFlow\n';
+  txt+='Date : '+fmtDate(d);
+  if(S.prat)txt+='  |  '+S.prat;
+  txt+='\n'+'─'.repeat(44)+'\n\n';
+  allDates.forEach(d=>{
+    const eyeStr=('['+d.eye+']').padEnd(6);
+    const typeStr=(d.type||'IVT').padEnd(18);
+    let line=fmtDateLong(d.date)+'  '+eyeStr+'  '+typeStr;
+    if(d.ctrl)line+='  ← Contrôle';
+    txt+=line+'\n';
+  });
+  const box=document.getElementById('synth-box');
+  box.textContent=txt;
+  box.style.display='block';
+  showToast('Planning secrétaire généré');
 }
 
 // ============================================================
@@ -1374,7 +1467,10 @@ function eyeSynthText(eye){
     lines.push('');
     lines.push('Planning IVT :');
     dates.slice(0,8).forEach(d=>{
-      lines.push('  '+(d.n||'↳')+'. '+fmtDate(d.date)+(d.note?' ['+d.note+']':''));
+      let line='  '+(d.n||'↳')+'. '+fmtDate(d.date)+(d.note?' ['+d.note+']':'');
+      if(d.ctrl)line+=' ← Contrôle avant injection';
+      if(d.type==='ctrl')line+=' ← Contrôle';
+      lines.push(line);
     });
   }
   return lines.join('\n');
@@ -1498,8 +1594,8 @@ function renderDateLines(){
   const c=document.getElementById('dl-container');
   if(!c)return;
   c.innerHTML=S.ass.dateLines.map((l,i)=>{
-    const eyeCls=l.eye==='od'?'dl-eye-od':l.eye==='og'?'dl-eye-og':'dl-eye-both';
-    const eyeLbl=l.eye==='od'?'OD':l.eye==='og'?'OG':'OD/OG';
+    const eyeCls=l.eye==='od'?'dl-eye-od':l.eye==='og'?'dl-eye-og':(l.eye==='both'?'dl-eye-both':'dl-eye-both');
+    const eyeLbl=l.eye==='od'?'OD':l.eye==='og'?'OG':l.eye==='both'?'ODG':'OD/OG';
     const otherEye=l.eye==='od'?'OG':l.eye==='og'?'OD':null;
     const copyBtn=otherEye?`<button class="dl-copy" onclick="copyDateLine(${l.id})">Copier → ${otherEye}</button>`:'';
     return`<div class="dl-row">
@@ -1512,7 +1608,7 @@ function renderDateLines(){
       <div class="dl-row-bottom">
         <input class="dl-time" type="time" value="${l.time||''}" placeholder="Heure" oninput="updateDateLine(${l.id},'time',this.value)">
         <select class="dl-type" onchange="updateDateLine(${l.id},'type',this.value)">
-          ${['IVT','Contrôle','OCT','Angio-OCT'].map(t=>`<option${l.type===t?' selected':''}>${t}</option>`).join('')}
+          ${['IVT','IVT + Contrôle','Contrôle','OCT','Angio-OCT'].map(t=>`<option${l.type===t?' selected':''}>${t}</option>`).join('')}
         </select>
         ${copyBtn}
       </div>
@@ -1966,6 +2062,47 @@ async function doSignUp(){
 }
 
 // ============================================================
+// HANDLE RECOVERY TOKEN ON PAGE LOAD
+// ============================================================
+function checkRecoveryToken(){
+  const hash=window.location.hash;
+  if(!hash)return;
+  const params=new URLSearchParams(hash.replace(/^#/,''));
+  const type=params.get('type');
+  const access_token=params.get('access_token');
+  if(type==='recovery'&&access_token){
+    // Set the session from the token so updateUser works
+    const sb=getSupabase();
+    if(sb){
+      sb.auth.setSession({access_token,refresh_token:params.get('refresh_token')||''}).then(()=>{
+        document.getElementById('new-pwd-overlay').classList.add('open');
+        // Clean URL
+        history.replaceState(null,'',window.location.pathname);
+      });
+    }
+  }
+}
+
+async function doUpdatePassword(){
+  const sb=getSupabase();if(!sb)return;
+  const pwd=document.getElementById('new-pwd-input').value;
+  const confirm=document.getElementById('new-pwd-confirm').value;
+  const errEl=document.getElementById('new-pwd-error');
+  const succEl=document.getElementById('new-pwd-success');
+  errEl.textContent='';succEl.style.display='none';
+  if(pwd.length<8){errEl.textContent='8 caractères minimum.';return;}
+  if(pwd!==confirm){errEl.textContent='Les mots de passe ne correspondent pas.';return;}
+  const btn=document.querySelector('#new-pwd-overlay .auth-submit-btn');
+  if(btn){btn.disabled=true;btn.textContent='Mise à jour…';}
+  const{error}=await sb.auth.updateUser({password:pwd});
+  if(btn){btn.disabled=false;btn.textContent='Enregistrer';}
+  if(error){errEl.textContent=error.message;return;}
+  succEl.style.display='block';
+  setTimeout(()=>document.getElementById('new-pwd-overlay').classList.remove('open'),3000);
+  showToast('Mot de passe mis à jour !');
+}
+
+// ============================================================
 // RESET PASSWORD
 // ============================================================
 function showResetView(){
@@ -1993,7 +2130,7 @@ async function doResetPassword(ev){
   if(!email){errEl.textContent='Email requis.';return;}
   const btn=ev?ev.target:null;
   if(btn){btn.disabled=true;btn.textContent='Envoi en cours…';}
-  const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.href});
+  const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});
   if(btn){btn.disabled=false;btn.textContent='Envoyer le lien';}
   if(error){errEl.textContent=error.message;return;}
   succEl.style.display='block';
